@@ -1,0 +1,1030 @@
+{% extends 'base.html' %}
+
+{% block title %}AI Business OS — Sales Cheat Sheet{% endblock %}
+
+{% block navigation %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_head %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+:root {
+  --bg: #f0f2f7;
+  --panel: #ffffff;
+  --text: #0f172a;
+  --muted: #64748b;
+  --border: rgba(15,23,42,0.09);
+  --border-2: rgba(15,23,42,0.06);
+  --accent: #0ea5e9;
+  --accent-2: #22c55e;
+  --accent-3: #f59e0b;
+  --radius-lg: 18px;
+  --radius-md: 12px;
+  --radius-sm: 9px;
+  --shadow: 0 1px 3px rgba(15,23,42,0.07);
+  --shadow-lg: 0 14px 40px rgba(15,23,42,0.12);
+}
+
+* { font-family: 'Inter', -apple-system, sans-serif; box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
+
+/* ── APP SHELL ─────────────────────────── */
+.cs-app { display: flex; height: 100vh; overflow: hidden; }
+
+/* ── SIDEBAR ───────────────────────────── */
+.cs-sidebar {
+  width: 240px; min-width: 240px;
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  transition: width 0.28s ease, min-width 0.28s ease;
+  z-index: 10;
+  box-shadow: 2px 0 10px rgba(15,23,42,0.04);
+}
+.cs-sidebar.collapsed { width: 64px; min-width: 64px; }
+
+.cs-sb-head {
+  padding: 16px 14px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0; gap: 10px;
+}
+.cs-logo { height: 36px; max-width: 150px; object-fit: contain; flex-shrink: 0; }
+.cs-sidebar.collapsed .cs-logo { display: none; }
+.cs-logo-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: rgba(14,165,233,0.1); display: none;
+  align-items: center; justify-content: center;
+  color: var(--accent); font-size: 1rem; flex-shrink: 0;
+}
+.cs-sidebar.collapsed .cs-logo-icon { display: flex; }
+
+.cs-collapse-btn {
+  width: 26px; height: 26px; border-radius: 7px;
+  border: 1px solid var(--border); background: transparent;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  color: var(--muted); font-size: 0.72rem; flex-shrink: 0;
+  transition: all 0.14s;
+}
+.cs-collapse-btn:hover { background: rgba(14,165,233,0.1); color: var(--accent); }
+
+/* Tab switcher in sidebar */
+.cs-tab-switch {
+  display: flex; gap: 4px; padding: 10px 10px 8px;
+  border-bottom: 1px solid var(--border); flex-shrink: 0;
+}
+.cs-sidebar.collapsed .cs-tab-switch { flex-direction: column; align-items: center; }
+.cs-tab-btn {
+  flex: 1; padding: 7px 6px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); background: transparent;
+  font-size: 0.72rem; font-weight: 700; color: var(--muted);
+  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px;
+  transition: all 0.14s; white-space: nowrap; overflow: hidden;
+}
+.cs-tab-btn:hover { background: rgba(15,23,42,0.03); color: var(--text); }
+.cs-tab-btn.active { background: rgba(14,165,233,0.1); color: var(--accent); border-color: rgba(14,165,233,0.2); }
+.cs-tab-btn span { overflow: hidden; }
+.cs-sidebar.collapsed .cs-tab-btn span { display: none; }
+.cs-sidebar.collapsed .cs-tab-btn { width: 40px; height: 34px; flex: none; padding: 0; }
+
+/* Search */
+.cs-search-wrap { padding: 10px 10px 8px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.cs-sidebar.collapsed .cs-search-wrap { display: none; }
+.cs-search-inner { position: relative; }
+.cs-search { width: 100%; padding: 7px 10px 7px 28px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg); font-size: 0.8rem; color: var(--text); outline: none; transition: border-color 0.14s; }
+.cs-search:focus { border-color: rgba(14,165,233,0.45); }
+.cs-search-ico { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 0.7rem; }
+
+/* Nav */
+.cs-nav { flex: 1; overflow-y: auto; padding: 8px 6px; }
+.cs-nav-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 8px; border-radius: var(--radius-sm);
+  cursor: pointer; color: rgba(15,23,42,0.65);
+  font-size: 0.82rem; font-weight: 500; margin-bottom: 2px;
+  transition: all 0.13s; border: 1px solid transparent;
+  user-select: none; overflow: hidden;
+}
+.cs-nav-item:hover { background: rgba(14,165,233,0.07); color: var(--accent); }
+.cs-nav-item.active { background: rgba(14,165,233,0.1); color: var(--accent); font-weight: 700; border-color: rgba(14,165,233,0.18); }
+.cs-nav-icon {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: rgba(15,23,42,0.04); display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem; color: var(--muted); flex-shrink: 0; transition: all 0.13s;
+}
+.cs-nav-item.active .cs-nav-icon, .cs-nav-item:hover .cs-nav-icon { background: rgba(14,165,233,0.14); color: var(--accent); }
+.cs-nav-num { font-size: 0.67rem; font-weight: 800; color: var(--muted); width: 20px; text-align: right; flex-shrink: 0; }
+.cs-nav-item.active .cs-nav-num { color: var(--accent); }
+.cs-nav-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cs-sidebar.collapsed .cs-nav-text, .cs-sidebar.collapsed .cs-nav-num { display: none; }
+.cs-sidebar.collapsed .cs-nav-item { justify-content: center; padding: 9px 0; }
+
+/* Sidebar footer */
+.cs-sb-foot {
+  padding: 10px 8px; border-top: 1px solid var(--border);
+  display: flex; gap: 6px; flex-shrink: 0;
+}
+.cs-sidebar.collapsed .cs-sb-foot { flex-direction: column; align-items: center; }
+.cs-foot-btn {
+  flex: 1; padding: 8px 4px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); background: transparent;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px;
+  font-size: 0.74rem; font-weight: 700; color: var(--muted);
+  transition: all 0.13s; white-space: nowrap; overflow: hidden;
+}
+.cs-foot-btn:hover { background: rgba(15,23,42,0.04); color: var(--text); }
+.cs-foot-btn.primary { background: var(--accent); color: white; border-color: var(--accent); }
+.cs-foot-btn.primary:hover { background: #0284c7; }
+.cs-foot-btn-lbl { overflow: hidden; }
+.cs-sidebar.collapsed .cs-foot-btn-lbl { display: none; }
+.cs-sidebar.collapsed .cs-foot-btn { width: 40px; height: 34px; flex: none; padding: 0; }
+
+/* ── MAIN ──────────────────────────────── */
+.cs-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+
+/* Topbar */
+.cs-topbar {
+  background: rgba(240,242,247,0.95); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 24px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0; gap: 16px;
+}
+.cs-topbar-title { font-size: 1rem; font-weight: 900; letter-spacing: -0.25px; }
+.cs-topbar-sub { font-size: 0.78rem; color: var(--muted); margin-top: 1px; }
+.cs-topbar-actions { display: flex; gap: 7px; align-items: center; flex-shrink: 0; }
+.cs-action-btn {
+  padding: 7px 13px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); background: var(--panel);
+  font-size: 0.78rem; font-weight: 700; color: rgba(15,23,42,0.8);
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  transition: all 0.13s; box-shadow: var(--shadow);
+}
+.cs-action-btn:hover { box-shadow: 0 4px 12px rgba(15,23,42,0.1); transform: translateY(-1px); }
+.cs-action-btn:active { transform: translateY(0); }
+.cs-action-btn.accent { background: var(--accent); color: white; border-color: var(--accent); }
+.cs-action-btn.accent:hover { background: #0284c7; }
+.cs-action-btn.success { background: rgba(34,197,94,0.1); color: #16a34a; border-color: rgba(34,197,94,0.3); }
+
+/* Progress strip */
+.cs-strip {
+  background: var(--panel); border-bottom: 1px solid var(--border);
+  display: flex; overflow-x: auto; flex-shrink: 0; scrollbar-width: none;
+}
+.cs-strip::-webkit-scrollbar { display: none; }
+.cs-strip-step {
+  display: flex; align-items: center; gap: 5px;
+  padding: 9px 13px; border-bottom: 2px solid transparent;
+  cursor: pointer; white-space: nowrap; flex-shrink: 0;
+  font-size: 0.75rem; font-weight: 600; color: var(--muted);
+  transition: all 0.14s; user-select: none;
+}
+.cs-strip-step:hover { color: var(--text); }
+.cs-strip-step.active { color: var(--accent); border-bottom-color: var(--accent); }
+.cs-strip-num {
+  width: 17px; height: 17px; border-radius: 50%;
+  background: rgba(15,23,42,0.07); font-size: 0.62rem; font-weight: 800;
+  display: flex; align-items: center; justify-content: center; color: var(--muted); flex-shrink: 0;
+}
+.cs-strip-step.active .cs-strip-num { background: var(--accent); color: white; }
+
+/* Scroll area */
+.cs-scroll { flex: 1; overflow-y: auto; padding: 18px 22px; }
+
+/* ── TAB VIEWS ─────────────────────────── */
+.cs-view { display: none; }
+.cs-view.active { display: block; }
+
+/* ── WORKFLOW CARDS (Cheat Sheet) ──────── */
+.cs-wf-card {
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); margin-bottom: 12px;
+  overflow: hidden; box-shadow: var(--shadow);
+  animation: csFadeUp 0.22s ease both;
+}
+.cs-wf-card:hover { border-color: rgba(14,165,233,0.2); box-shadow: 0 6px 20px rgba(15,23,42,0.09); }
+
+.cs-wf-head {
+  padding: 14px 18px; display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer; background: var(--panel); transition: background 0.13s; gap: 10px;
+  border-bottom: 1px solid transparent;
+}
+.cs-wf-head:hover { background: rgba(15,23,42,0.01); }
+.cs-wf-head.open { border-bottom-color: var(--border-2); }
+
+.cs-wf-head-left { display: flex; align-items: center; gap: 10px; }
+.cs-wf-ico {
+  width: 32px; height: 32px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.82rem; flex-shrink: 0;
+  background: rgba(15,23,42,0.04); border: 1px solid var(--border-2);
+  color: var(--muted);
+}
+.cs-wf-ico.blue { background: rgba(14,165,233,0.1); color: #0284c7; border-color: rgba(14,165,233,0.15); }
+.cs-wf-ico.purple { background: rgba(139,92,246,0.1); color: #7c3aed; border-color: rgba(139,92,246,0.15); }
+.cs-wf-ico.green { background: rgba(34,197,94,0.1); color: #16a34a; border-color: rgba(34,197,94,0.15); }
+.cs-wf-ico.orange { background: rgba(249,115,22,0.1); color: #ea580c; border-color: rgba(249,115,22,0.15); }
+.cs-wf-ico.indigo { background: rgba(99,102,241,0.1); color: #4f46e5; border-color: rgba(99,102,241,0.15); }
+
+.cs-wf-name { font-size: 0.9rem; font-weight: 800; color: var(--text); letter-spacing: -0.15px; }
+.cs-wf-head-right { display: flex; align-items: center; gap: 7px; flex-shrink: 0; }
+.cs-copy-btn {
+  padding: 5px 10px; border-radius: 7px;
+  border: 1px solid var(--border); background: var(--panel);
+  font-size: 0.7rem; font-weight: 700; color: var(--muted);
+  cursor: pointer; display: flex; align-items: center; gap: 4px;
+  transition: all 0.13s;
+}
+.cs-copy-btn:hover { background: rgba(14,165,233,0.07); color: var(--accent); border-color: rgba(14,165,233,0.2); }
+.cs-chevron { color: var(--muted); font-size: 0.72rem; transition: transform 0.2s ease; }
+.cs-wf-head.open .cs-chevron { transform: rotate(180deg); }
+
+/* Card body */
+.cs-wf-body { padding: 16px 20px 20px; display: none; }
+.cs-wf-body.open { display: block; }
+
+.cs-wf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 720px) { .cs-wf-grid { grid-template-columns: 1fr; } }
+
+.cs-inner-card {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: var(--radius-md); overflow: hidden;
+}
+.cs-inner-head {
+  padding: 9px 13px; border-bottom: 1px solid var(--border);
+  font-size: 0.68rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--muted);
+  display: flex; align-items: center; gap: 6px;
+}
+.cs-inner-head i { color: var(--accent); }
+.cs-inner-body { padding: 12px 13px; display: flex; flex-direction: column; gap: 7px; }
+
+/* Description bullets */
+.cs-desc-item {
+  display: flex; align-items: flex-start; gap: 7px;
+  font-size: 0.83rem; color: rgba(15,23,42,0.82); line-height: 1.5;
+}
+.cs-desc-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); margin-top: 5px; flex-shrink: 0; }
+
+/* Sales point bullets */
+.cs-sales-item {
+  padding: 9px 12px;
+  border-left: 3px solid var(--accent);
+  background: rgba(14,165,233,0.05);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-size: 0.83rem; font-weight: 600; color: rgba(15,23,42,0.88);
+  line-height: 1.55; cursor: pointer; transition: all 0.13s;
+  position: relative;
+}
+.cs-sales-item:hover { background: rgba(14,165,233,0.09); transform: translateX(3px); }
+.cs-sales-item.copied { background: rgba(34,197,94,0.08); border-left-color: var(--accent-2); }
+.cs-sales-copy {
+  position: absolute; right: 7px; top: 50%; transform: translateY(-50%);
+  width: 20px; height: 20px; border-radius: 5px;
+  background: var(--panel); border: 1px solid rgba(14,165,233,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.6rem; color: var(--accent); opacity: 0;
+  transition: opacity 0.13s;
+}
+.cs-sales-item:hover .cs-sales-copy { opacity: 1; }
+
+/* ── PITCH PANEL (reused from component) ── */
+/* All sp-* styles from the previous component are reused */
+
+/* ── SEARCH HIGHLIGHT ──────────────────── */
+.cs-highlight { background: #fde68a; padding: 1px 3px; border-radius: 3px; }
+
+/* ── TOAST ─────────────────────────────── */
+.cs-toast {
+  position: fixed; bottom: 20px; right: 20px; z-index: 999;
+  background: var(--text); color: white;
+  padding: 10px 16px; border-radius: var(--radius-md);
+  font-size: 0.8rem; font-weight: 600;
+  display: flex; align-items: center; gap: 8px;
+  box-shadow: 0 8px 28px rgba(15,23,42,0.22);
+  transform: translateY(70px); opacity: 0;
+  transition: all 0.28s cubic-bezier(0.34,1.56,0.64,1);
+  pointer-events: none;
+}
+.cs-toast.show { transform: translateY(0); opacity: 1; }
+.cs-toast i { color: var(--accent-2); }
+
+/* Tip bar */
+.cs-tip {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(245,158,11,0.07); border: 1px solid rgba(245,158,11,0.2);
+  border-radius: var(--radius-sm); padding: 9px 12px; margin-bottom: 14px;
+  font-size: 0.77rem; color: rgba(100,60,0,0.85); font-weight: 500;
+}
+.cs-tip i { color: var(--accent-3); flex-shrink: 0; }
+.cs-tip-close { margin-left: auto; background: none; border: none; cursor: pointer; font-size: 0.7rem; font-weight: 800; color: var(--accent-3); }
+.cs-kbd { display: inline-flex; padding: 1px 5px; border-radius: 4px; background: rgba(15,23,42,0.08); font-size: 0.67rem; font-weight: 700; color: var(--muted); border: 1px solid rgba(15,23,42,0.12); font-family: monospace; }
+
+/* Scrollbars */
+.cs-nav::-webkit-scrollbar, .cs-scroll::-webkit-scrollbar { width: 4px; }
+.cs-nav::-webkit-scrollbar-thumb, .cs-scroll::-webkit-scrollbar-thumb { background: rgba(15,23,42,0.1); border-radius: 4px; }
+
+/* Animations */
+@keyframes csFadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── PITCH VIEW OVERRIDES (when embedded in cheat sheet) ── */
+#csViewPitch #salesPitchWorkflows {
+  height: 100%;
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
+  background: transparent;
+}
+#csViewPitch .sp-view { display: none; }
+#csViewPitch .sp-view.active { display: block; }
+
+/* Print */
+@media print {
+  .cs-sidebar, .cs-topbar, .cs-strip, .cs-tip, .cs-toast { display: none !important; }
+  body, .cs-app { height: auto; overflow: visible; }
+  .cs-main { overflow: visible; }
+  .cs-scroll { overflow: visible; padding: 20px; }
+  .cs-view { display: block !important; }
+  .cs-wf-body { display: block !important; }
+  #csViewPitch .sp-view { display: block !important; margin-bottom: 24px; }
+}
+</style>
+{% endblock %}
+
+{% block content_wrapper %}
+<div class="cs-app">
+
+  <!-- ── SIDEBAR ─────────────────────────────── -->
+  <aside class="cs-sidebar" id="csSidebar">
+    <div class="cs-sb-head">
+      <img class="cs-logo" src="https://res.cloudinary.com/dcuswyfur/image/upload/v1772104053/rapidprospect_r6orxo.png" alt="RapidProspect">
+      <div class="cs-logo-icon"><i class="fas fa-bolt"></i></div>
+      <button class="cs-collapse-btn" onclick="csToggleSidebar()"><i class="fas fa-bars"></i></button>
+    </div>
+
+    <!-- Tab switcher -->
+    <div class="cs-tab-switch">
+      <button class="cs-tab-btn active" id="csBtnCheat" onclick="csSwitchTab('cheat')">
+        <i class="fas fa-clipboard-list"></i><span>Cheat Sheet</span>
+      </button>
+      <button class="cs-tab-btn" id="csBtnPitch" onclick="csSwitchTab('pitch')">
+        <i class="fas fa-bullhorn"></i><span>Sales Pitch</span>
+      </button>
+    </div>
+
+    <!-- Search -->
+    <div class="cs-search-wrap">
+      <div class="cs-search-inner">
+        <i class="fas fa-search cs-search-ico"></i>
+        <input class="cs-search" type="text" id="csSearch" placeholder="Search workflows…" oninput="csSearch(this.value)">
+      </div>
+    </div>
+
+    <!-- Nav -->
+    <nav class="cs-nav" id="csNav">
+      <div class="cs-nav-item active" onclick="csNavClick('1')" id="csNavItem-1">
+        <div class="cs-nav-icon"><i class="fas fa-envelope"></i></div>
+        <span class="cs-nav-num">1</span>
+        <span class="cs-nav-text" id="csNavText-1">AI Email Guard</span>
+      </div>
+      <div class="cs-nav-item" onclick="csNavClick('2')" id="csNavItem-2">
+        <div class="cs-nav-icon"><i class="fas fa-pen-nib"></i></div>
+        <span class="cs-nav-num">2</span>
+        <span class="cs-nav-text" id="csNavText-2">Idea-to-Post</span>
+      </div>
+      <div class="cs-nav-item" onclick="csNavClick('2a')" id="csNavItem-2a">
+        <div class="cs-nav-icon"><i class="fas fa-hashtag"></i></div>
+        <span class="cs-nav-num">2A</span>
+        <span class="cs-nav-text" id="csNavText-2a">Social Media</span>
+      </div>
+      <div class="cs-nav-item" onclick="csNavClick('2b')" id="csNavItem-2b">
+        <div class="cs-nav-icon"><i class="fas fa-ad"></i></div>
+        <span class="cs-nav-num">2B</span>
+        <span class="cs-nav-text" id="csNavText-2b">Automated Ads</span>
+      </div>
+      <div class="cs-nav-item" onclick="csNavClick('3')" id="csNavItem-3">
+        <div class="cs-nav-icon"><i class="fas fa-user-plus"></i></div>
+        <span class="cs-nav-num">3</span>
+        <span class="cs-nav-text" id="csNavText-3">Lead Capture</span>
+      </div>
+      <div class="cs-nav-item" onclick="csNavClick('3a')" id="csNavItem-3a">
+        <div class="cs-nav-icon"><i class="fas fa-phone-alt"></i></div>
+        <span class="cs-nav-num">3A</span>
+        <span class="cs-nav-text" id="csNavText-3a">Voice AI</span>
+      </div>
+      <div class="cs-nav-item" onclick="csNavClick('3b')" id="csNavItem-3b">
+        <div class="cs-nav-icon"><i class="fas fa-comment-dots"></i></div>
+        <span class="cs-nav-num">3B</span>
+        <span class="cs-nav-text" id="csNavText-3b">Chatbot</span>
+      </div>
+      <div class="cs-nav-item" onclick="csNavClick('4')" id="csNavItem-4">
+        <div class="cs-nav-icon"><i class="fas fa-calendar-check"></i></div>
+        <span class="cs-nav-num">4</span>
+        <span class="cs-nav-text" id="csNavText-4">Sales Prep</span>
+      </div>
+      <div class="cs-nav-item" onclick="csNavClick('5')" id="csNavItem-5">
+        <div class="cs-nav-icon"><i class="fas fa-handshake"></i></div>
+        <span class="cs-nav-num">5</span>
+        <span class="cs-nav-text" id="csNavText-5">Follow-Up</span>
+      </div>
+    </nav>
+
+    <div class="cs-sb-foot">
+      <button class="cs-foot-btn primary" onclick="csCopyAll()"><i class="fas fa-copy"></i><span class="cs-foot-btn-lbl"> Copy All</span></button>
+      <button class="cs-foot-btn" onclick="window.print()"><i class="fas fa-print"></i><span class="cs-foot-btn-lbl"> Print</span></button>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ───────────────────────────────── -->
+  <div class="cs-main">
+    <!-- Topbar -->
+    <div class="cs-topbar">
+      <div>
+        <div class="cs-topbar-title" id="csTopTitle">Sales Cheat Sheet</div>
+        <div class="cs-topbar-sub">Benefit-first · Click any pitch point to copy</div>
+      </div>
+      <div class="cs-topbar-actions">
+        <button class="cs-action-btn" onclick="csCopyAll()" id="csCopyAllBtn"><i class="fas fa-copy"></i> Copy All</button>
+        <button class="cs-action-btn" onclick="window.print()"><i class="fas fa-print"></i> Print</button>
+        <!-- Pitch nav arrows (hidden in cheat tab) -->
+        <button class="cs-action-btn" id="csPitchPrev" onclick="csPitchPrev()" style="display:none;"><i class="fas fa-arrow-left"></i></button>
+        <button class="cs-action-btn" id="csPitchNext" onclick="csPitchNext()" style="display:none;"><i class="fas fa-arrow-right"></i></button>
+      </div>
+    </div>
+
+    <!-- Progress strip -->
+    <div class="cs-strip" id="csStrip">
+      <div class="cs-strip-step active" onclick="csStripClick('1')" data-id="1"><div class="cs-strip-num">1</div>Email</div>
+      <div class="cs-strip-step" onclick="csStripClick('2')" data-id="2"><div class="cs-strip-num">2</div>Content</div>
+      <div class="cs-strip-step" onclick="csStripClick('2a')" data-id="2a"><div class="cs-strip-num">2A</div>Social</div>
+      <div class="cs-strip-step" onclick="csStripClick('2b')" data-id="2b"><div class="cs-strip-num">2B</div>Ads</div>
+      <div class="cs-strip-step" onclick="csStripClick('3')" data-id="3"><div class="cs-strip-num">3</div>Leads</div>
+      <div class="cs-strip-step" onclick="csStripClick('3a')" data-id="3a"><div class="cs-strip-num">3A</div>Voice</div>
+      <div class="cs-strip-step" onclick="csStripClick('3b')" data-id="3b"><div class="cs-strip-num">3B</div>Chat</div>
+      <div class="cs-strip-step" onclick="csStripClick('4')" data-id="4"><div class="cs-strip-num">4</div>Prep</div>
+      <div class="cs-strip-step" onclick="csStripClick('5')" data-id="5"><div class="cs-strip-num">5</div>Recap</div>
+    </div>
+
+    <!-- Scroll area -->
+    <div class="cs-scroll" id="csScrollArea">
+
+      <!-- Tip bar -->
+      
+
+      <!-- ════════════ CHEAT SHEET TAB ════════════ -->
+      <div class="cs-view active" id="csViewCheat">
+
+        <!-- WF 1 -->
+        <div class="cs-wf-card" id="csCard-1">
+          <div class="cs-wf-head open" onclick="csToggleCard('1', event)">
+            <div class="cs-wf-head-left">
+              <div class="cs-wf-ico blue"><i class="fas fa-envelope"></i></div>
+              <div class="cs-wf-name">Workflow 1 – AI Email Guard & Response Drafter</div>
+            </div>
+            <div class="cs-wf-head-right">
+              <button class="cs-copy-btn" onclick="csCopyCard('1', event)"><i class="fas fa-copy"></i> Copy</button>
+              <i class="fas fa-chevron-up cs-chevron" id="csChevron-1"></i>
+            </div>
+          </div>
+          <div class="cs-wf-body open" id="csBody-1">
+            <div class="cs-wf-grid">
+              <div class="cs-inner-card">
+                <div class="cs-inner-head"><i class="fas fa-list-ul"></i> What it does</div>
+                <div class="cs-inner-body">
+                  <div class="cs-desc-item"><div class="cs-desc-dot"></div>Monitors Gmail/Outlook and auto-classifies emails by priority.</div>
+                  <div class="cs-desc-item"><div class="cs-desc-dot"></div>Drafts professional replies in the user's brand voice and saves as drafts.</div>
+                  <div class="cs-desc-item"><div class="cs-desc-dot"></div>Reduces inbox overload while keeping the user in full control.</div>
+                  <div class="cs-desc-item"><div class="cs-desc-dot"></div>Centralizes email handling so nothing important slips through.</div>
+                </div>
+              </div>
+              <div class="cs-inner-card">
+                <div class="cs-inner-head"><i class="fas fa-bullhorn"></i> Sales points <span style="font-size:0.65rem;font-weight:500;text-transform:none;letter-spacing:0;margin-left:4px;">— click to copy</span></div>
+                <div class="cs-inner-body">
+                  <div class="cs-sales-item" onclick="csCopySales(this)">"Reclaims 1–2 hours per day from the inbox without losing control of messaging."<div class="cs-sales-copy"><i class="fas fa-copy"></i></div></div>
+                  <div class="cs-sales-item" onclick="csCopySales(this)">"Gives every user a personal email assistant that never gets tired or distracted."<div class="cs-sales-copy"><i class="fas fa-copy"></i></div></div>
+                  <div class="cs-sales-item" onclick="csCopySales(this)">"Ensures faster, more consistent replies — happier clients and more closed deals."<div class="cs-sales-copy"><i class="fas fa-copy"></i></div></div>
+                  <div class="cs-sales-item" onclick="csCopySales(this)">"Protects focus time so salespeople can sell instead of living in their inbox."<div class="cs-sales-copy"><i class="fas fa-copy"></i></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- WF 2 -->
+        <div class="cs-wf-card" id="csCard-2">
+          <div class="cs-wf-head" onclick="csToggleCard('2', event)">
+            <div class="cs-wf-head-left">
+              <div class="cs-wf-ico purple"><i class="fas fa-pen-nib"></i></div>
+              <div class="cs-wf-name">Workflow 2 – "Idea-to-Post" Content Engine</div>
+            </div>
+            <div class="cs-wf-head-right">
+              <button class="cs-copy-btn" onclick="csCopyCard('2', event)"><i class="fas fa-copy"></i> Copy</button>
+              <i class="fas fa-chevron-down cs-chevron" id="csChevron-2"></i>
+            </div>
+          </div>
+          <div class="cs-wf-body" id="csBody-2">
+            <div class="cs-wf-grid">
+              <div class="cs-inner-card">
+                <div class="cs-inner-head"><i class="fas fa-list-ul"></i> What it does</div>
+                <div class="cs-inner-body">
+                  <div class="cs-desc-item"><div class="cs-desc-dot"></div>Turns a raw idea (voice note or text) into a full set of social posts.</div>
+                  <div class="cs-desc-item"><div class="cs-desc-dot"></div>Auto-creates platform-specific content for Instagram, Facebook, LinkedIn.</div>
+                  <div class="cs-desc-item"><div class="cs-desc-dot"></div>Handles formatting, variations, and scheduling in advance.</div>
+                  <div class="cs-desc-item"><div class="cs-desc-dot"></div>Keeps the brand consistently visible without daily manual content work.</div>
+                </div>
+              </div>
+              <div class="cs-inner-card">
+                <div class="cs-inner-head"><i class="fas fa-bullhorn"></i> Sales points <span style="font-size:0.65rem;font-weight:500;text-transform:none;letter-spacing:0;margin-left:4px;">— click to copy</span></div>
+                <div class="cs-inner-body">
+                  <div class="cs-sales-item" onclick="csCopySales(this)">"Eliminates content paralysis—one idea becomes a week of posts in minutes."<div class="cs-sales-copy"><i class="fas fa-copy"></i></div></div>
+                  <div class="cs-sales-item" onclick="csCopySales(this)">"Gives clients always-on visibility without needing a full-time content team."<div class="cs-sales-copy"><i class="fas fa-copy"></i></div></div>
+                  <div class="cs-sales-item" onclick="csCopySales(this)">"Helps them look bigger and more professional online than their competitors."<div class="cs-sales-copy"><i class="fas fa-copy"></i></div></div>
+                  <div class="cs-sales-item" onclick="csCopySales(this)">"Perfect for busy founders who hate social but still need to be everywhere."<div class="cs-sales-copy"><i class="fas fa-copy"></i></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- WF 2A -->
+        <div class="cs-wf-card" id="csCard-2a">
+          <div class="cs-wf-head" onclick="csToggleCard('2a', event)">
+            <div class="cs-wf-head-left">
+              <div class="cs-wf-ico purple"><i class="fas fa-bullhorn"></i></div>
+              <div class="cs-wf-name">Workflow 2A – Automated Social Media (Maintenance)</div>
+            </div>
+            <div class="cs-wf-head-right">
+              <button class="cs-copy-btn" onclick="csCopyCard('2a', event)"><i class="fas fa-copy"></i> Copy</button>
+              <i class="fas fa-chevron-down cs-chevron" id="csChevron-2a"></i>
+            </div>
+          </div>
+          <div class="cs-wf-body" id="csBody-2a">
+            <div class="cs-wf-grid">
+              <div class="cs-inner-card">
+                <div class="cs-inner-head"><i class="fas fa-list-ul"></i> What it does</div>
+                <div class="cs-inner-body">
+                  <div class="cs-desc-item"><div class="cs-desc-dot"></div>Voice-to-Post: Turns raw voice messages into polished content.</div>
+                  <div class="cs-desc-item"><div class="cs-desc-dot"></div>Creates posts for Instagram, Facebook, and LinkedIn simultaneously.</div>
+                  <div class="cs-desc-item"><div class="cs-desc-dot"></div>Handles the posting calendar and times automatically.</div>
+                  <div class="cs-desc-item"><div class="cs-desc-dot"></div>Maintains specific messaging and tone across all channels.</div>
+                </div>
+              </div>
+              <div class="cs-inner-card">
+                <div class="cs-inner-head"><i class="fas fa-bullhorn"></i> Sales points <span style="font-size:0.65rem;font-weight:500;text-transform:none;letter-spacing:0;margin-left:4px;">— click to copy</span></div>
+                <div class="cs-inner-body">
+                  <div class="cs-sales-item" onclick="csCopySales(this)">"Your baseline insurance policy for visibility—you will never 'go dark' on social media again."<div class="cs-sales-copy"><i class="fas fa-copy"></i></div></div>
+                  <div class="cs-sales-item" onclick="csCopySales(this)">"Free yourself from the daily grind of logging in to post."<div class="cs-sales-copy"><i class="fas fa-copy"></i></div></div>
+                  <div class="cs-sales-item" onclick="csCopySales(this)">"One piece of content formatted perfectly for every major platform."<div class="cs-sales-copy"><i class="fas fa-copy"></i></div></div>
+                  <div class="cs-sales-item" onclick="csCopySales(this)">"Frees up your mental bandwidth for high-revenue activities."<div class="cs-sales-copy"><i class="fas fa-copy"></i></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- WF 2B -->
+        <div class="cs-wf-card" id="csCard-2b">
+          <div class="cs-wf-head" onclick="csToggleCard('2b', event)">
+            <div class="cs-wf-head-left">
+              <div class="cs-wf-ico purple"><i class="fas fa-ad"></i></div>
+              <div class="cs-wf-name">Workflow 2B – Automated Ads (Paid Media)</div>
+            </div>
+            <div class="cs-wf-head-right">
+              <button class="cs-copy-btn" onclick="csCopyCard('2b', event)"><i class="fas fa-copy"></i> Copy</button>
+              <i class="fas fa-chevron-down cs-chevron" id="csChevron-2b"></i>
+            </div>
+          </div>
+          <div class="cs-wf-body" id="csBody-2b">
+            <div class="cs-wf-grid">
+              <div class="cs-inner-card">
+                <div class="cs-inner-head"><i class="fas fa-list-ul"></i> What it does</div>
+                <div class="cs-inner-body">
+                  <div class="cs-desc-item"><div class="cs-desc-dot"></div>Auto-Copywriting: Generates ad copy and headlines automatically.</div>
+                  <div class="cs-desc-item"><div class="cs-desc-dot"></div>Creates multiple ad variations to test what performs best.</div>
+                  <div class="cs-desc-item"><div class="cs-desc-dot"></div>Refines messaging continuously based on performance data.</div>
+                  <div class="cs-desc-item"><div class="cs-desc-dot"></div>Supports Meta (Facebook/Instagram) and Google ad platforms.</div>
+                </div>
+              </div>
+              <div class="cs-inner-card">
+                <div class="cs-inner-head"><i class="fas fa-bullhorn"></i> Sales points <span style="font-size:0.65rem;font-weight:500;text-transform:none;letter-spacing:0;margin-left:4px;">— click to copy</span></div>
+                <div class="cs-inner-body">
+                  <div class="cs-sales-item" onclick="csCopySales(this)">"Stop burning budget on bad ads. AI finds the winner faster than any human."<div class="cs-sales-copy"><i class="fas fa-copy"></i></div></div>
+                  <div class="cs-sales-item" onclick="csCopySales(this)">"No need to hire an expensive agency — the system handles the creative heavy lifting."<div class="cs-sales-copy"><i class="fas fa-copy"></i></div></div>
+                  <div class="cs-sales-item" onclick="csCopySales(this)">"Launch campaigns in minutes, not days. From offer input to deployment."<div class="cs-sales-copy"><i class="fas fa-copy"></i></div></div>
+                  <div class="cs-sales-item" onclick="csCopySales(this)">"Scale revenue by automating the hardest part of paid ads: copy that converts."<div class="cs-sales-copy"><i class="fas fa-copy"></i></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- WF 3 -->
+        <div class="cs-wf-card" id="csCard-3">
+          <div class="cs-wf-head" onclick="csToggleCard('3', event)">
+            <div class="cs-wf-head-left">
+              <div class="cs-wf-ico green"><i class="fas fa-user-plus"></i></div>
+              <div class="cs-wf-name">Workflow 3 – 24/7 Lead Capture & Qualification</div>
+            </div>
+            <div class="cs-wf-head-right">
+              <button class="cs-copy-btn" onclick="csCopyCard('3', event)"><i class="fas fa-copy"></i> Copy</button>
+              <i class="fas fa-chevron-down cs-chevron" id="csChevron-3"></i>
+            </div>
+          </div>
+          <div class="cs-wf-body" id="csBody-3">
+            <div class="cs-wf-grid">
+              <div class="cs-inner-card">
+                <div class="cs-inner-head"><i class="fas fa-list-ul"></i> What it does</div>
+                <div class="cs-inner-body">
+                  <div class="cs-desc-item"><div class="cs-desc-dot"></div>Captures leads 24/7 from chatbots, voice AI, or web forms.</div>
+                  <div class="cs-desc-item"><div class="cs-desc-dot"></div>Uses AI to score and qualify leads based on fit and intent.</div>
+                  <div class="cs-desc-item"><div class="cs-desc-dot"></div>Auto-updates CRM pipeline with status, tags, and next steps.</div>
+                  <div class="cs-desc-item"><div class="cs-desc-dot"></div>Triggers immediate email/SMS follow-up so leads don't go cold.</div>
+                </div>
+              </div>
+              <div class="cs-inner-card">
+                <div class="cs-inner-head"><i class="fas fa-bullhorn"></i> Sales points <span style="font-size:0.65rem;font-weight:500;text-transform:none;letter-spacing:0;margin-left:4px;">— click to copy</span></div>
+                <div class="cs-inner-body">
+                  <div class="cs-sales-item" onclick="csCopySales(this)">"Never lose another lead just because it came in after hours."<div class="cs-sales-copy"><i class="fas fa-copy"></i></div></div>
+                  <div class="cs-sales-item" onclick="csCopySales(this)">"Automatically separates hot leads from tire-kickers — focus on the right people."<div class="cs-sales-copy"><i class="fas fa-copy"></i></div></div>
+                  <div class="cs-sales-item" onclick="csCopySales(this)">"Increases speed-to-lead, which is proven to boost conversion rates."<div class="cs-sales-copy"><i class="fas fa-copy"></i></div></div>
+                  <div class="cs-sales-item" onclick="csCopySales(this)">"Turns the website into a 24/7 sales rep that never sleeps or forgets to follow up."<div class="cs-sales-copy"><i class="fas fa-copy"></i></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- WF 3A -->
+        <div class="cs-wf-card" id="csCard-3a">
+          <div class="cs-wf-head" onclick="csToggleCard('3a', event)">
+            <div class="cs-wf-head-left">
+              <div class="cs-wf-ico green"><i class="fas fa-phone-alt"></i></div>
+              <div class="cs-wf-name">Workflow 3A – Automated Voice AI</div>
+            </div>
+            <div class="cs-wf-head-right">
+              <button class="cs-copy-btn" onclick="csCopyCard('3a', event)"><i class="fas fa-copy"></i> Copy</button>
+              <i class="fas fa-chevron-down cs-chevron" id="csChevron-3a"></i>
+            </div>
+          </div>
+          <div class="cs-wf-body" id="csBody-3a">
+            <div class="cs-wf-grid">
+              <div class="cs-inner-card">
+                <div class="cs-inner-head"><i class="fas fa-list-ul"></i> What it does</div>
+                <div class="cs-inner-body">
+                  <div class="cs-desc-item"><div class="cs-desc-dot"></div>Answers incoming calls with a natural, human-sounding AI.</div>
+                  <div class="cs-desc-item"><div class="cs-desc-dot"></div>Listens to the caller to understand intent and needs.</div>
+                  <div class="cs-desc-item"><div class="cs-desc-dot"></div>Asks qualifying questions in real-time to score the lead.</div>
+                  <div class="cs-desc-item"><div class="cs-desc-dot"></div>Directs calls or triggers follow-ups based on the conversation.</div>
+                </div>
+              </div>
+              <div class="cs-inner-card">
+                <div class="cs-inner-head"><i class="fas fa-bullhorn"></i> Sales points <span style="font-size:0.65rem;font-weight:500;text-transform:none;letter-spacing:0;margin-left:4px;">— click to copy</span></div>
+                <div class="cs-inner-body">
+                  <div class="cs-sales-item" onclick="csCopySales(this)">"Your business is now open 24 hours a day — 2 PM or 2 AM, every caller gets a professional response."<div class="cs-sales-copy"><i class="fas fa-copy"></i></div></div>
+                  <div class="cs-sales-item" onclick="csCopySales(this)">"Fortune 500 feel with a professional AI receptionist that costs less than a phone bill."<div class="cs-sales-copy"><i class="fas fa-copy"></i></div></div>
+                  <div class="cs-sales-item" onclick="csCopySales(this)">"AI filters the noise — you only call back the qualified leads."<div class="cs-sales-copy"><i class="fas fa-copy"></i></div></div>
+                  <div class="cs-sales-item" onclick="csCopySales(this)">"Capture revenue while you sleep — take orders, book appointments, capture leads overnight."<div class="cs-sales-copy"><i class="fas fa-copy"></i></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- WF 3B -->
+        <div class="cs-wf-card" id="csCard-3b">
+          <div class="cs-wf-head" onclick="csToggleCard('3b', event)">
+            <div class="cs-wf-head-left">
+              <div class="cs-wf-ico green"><i class="fas fa-comment-dots"></i></div>
+              <div class="cs-wf-name">Workflow 3B – Automated Chatbot</div>
+            </div>
+            <div class="cs-wf-head-right">
+              <button class="cs-copy-btn" onclick="csCopyCard('3b', event)"><i class="fas fa-copy"></i> Copy</button>
+              <i class="fas fa-chevron-down cs-chevron" id="csChevron-3b"></i>
+            </div>
+          </div>
+          <div class="cs-wf-body" id="csBody-3b">
+            <div class="cs-wf-grid">
+              <div class="cs-inner-card">
+                <div class="cs-inner-head"><i class="fas fa-list-ul"></i> What it does</div>
+                <div class="cs-inner-body">
+                  <div class="cs-desc-item"><div class="cs-desc-dot"></div>Responds instantly to common questions from website visitors.</div>
+                  <div class="cs-desc-item"><div class="cs-desc-dot"></div>Qualifies leads through natural conversation rather than static forms.</div>
+                  <div class="cs-desc-item"><div class="cs-desc-dot"></div>Books appointments or routes inquiries to specific team members.</div>
+                  <div class="cs-desc-item"><div class="cs-desc-dot"></div>Works across Website, Messenger, and WhatsApp — 24/7.</div>
+                </div>
+              </div>
+              <div class="cs-inner-card">
+                <div class="cs-inner-head"><i class="fas fa-bullhorn"></i> Sales points <span style="font-size:0.65rem;font-weight:500;text-transform:none;letter-spacing:0;margin-left:4px;">— click to copy</span></div>
+                <div class="cs-inner-body">
+                  <div class="cs-sales-item" onclick="csCopySales(this)">"Your website becomes a lead generation machine that never sleeps."<div class="cs-sales-copy"><i class="fas fa-copy"></i></div></div>
+                  <div class="cs-sales-item" onclick="csCopySales(this)">"Responding instantly to inquiries drastically increases conversion."<div class="cs-sales-copy"><i class="fas fa-copy"></i></div></div>
+                  <div class="cs-sales-item" onclick="csCopySales(this)">"Stop answering the same FAQs — AI handles it so you focus on complex sales."<div class="cs-sales-copy"><i class="fas fa-copy"></i></div></div>
+                  <div class="cs-sales-item" onclick="csCopySales(this)">"Turn traffic into appointments — bot qualifies and books directly on your calendar."<div class="cs-sales-copy"><i class="fas fa-copy"></i></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- WF 4 -->
+        <div class="cs-wf-card" id="csCard-4">
+          <div class="cs-wf-head" onclick="csToggleCard('4', event)">
+            <div class="cs-wf-head-left">
+              <div class="cs-wf-ico orange"><i class="fas fa-clipboard-list"></i></div>
+              <div class="cs-wf-name">Workflow 4 – Intelligent Sales Prep</div>
+            </div>
+            <div class="cs-wf-head-right">
+              <button class="cs-copy-btn" onclick="csCopyCard('4', event)"><i class="fas fa-copy"></i> Copy</button>
+              <i class="fas fa-chevron-down cs-chevron" id="csChevron-4"></i>
+            </div>
+          </div>
+          <div class="cs-wf-body" id="csBody-4">
+            <div class="cs-wf-grid">
+              <div class="cs-inner-card">
+                <div class="cs-inner-head"><i class="fas fa-list-ul"></i> What it does</div>
+                <div class="cs-inner-body">
+                  <div class="cs-desc-item"><div class="cs-desc-dot"></div>Triggers as soon as a meeting is booked in the calendar.</div>
+                  <div class="cs-desc-item"><div class="cs-desc-dot"></div>Analyzes CRM data and past conversations about that contact.</div>
+                  <div class="cs-desc-item"><div class="cs-desc-dot"></div>Generates a pre-call brief with agenda, key points, and questions.</div>
+                  <div class="cs-desc-item"><div class="cs-desc-dot"></div>Includes AI-generated objection-handling scripts for that prospect.</div>
+                </div>
+              </div>
+              <div class="cs-inner-card">
+                <div class="cs-inner-head"><i class="fas fa-bullhorn"></i> Sales points <span style="font-size:0.65rem;font-weight:500;text-transform:none;letter-spacing:0;margin-left:4px;">— click to copy</span></div>
+                <div class="cs-inner-body">
+                  <div class="cs-sales-item" onclick="csCopySales(this)">"Every rep walks into calls sounding prepared and professional, not reactive."<div class="cs-sales-copy"><i class="fas fa-copy"></i></div></div>
+                  <div class="cs-sales-item" onclick="csCopySales(this)">"Boosts close rates because reps know exactly what to say and what to avoid."<div class="cs-sales-copy"><i class="fas fa-copy"></i></div></div>
+                  <div class="cs-sales-item" onclick="csCopySales(this)">"Ideal for new or junior reps who need structure and talking points."<div class="cs-sales-copy"><i class="fas fa-copy"></i></div></div>
+                  <div class="cs-sales-item" onclick="csCopySales(this)">"Turns scattered CRM data into a one-page 'cheat sheet' before every call."<div class="cs-sales-copy"><i class="fas fa-copy"></i></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- WF 5 -->
+        <div class="cs-wf-card" id="csCard-5">
+          <div class="cs-wf-head" onclick="csToggleCard('5', event)">
+            <div class="cs-wf-head-left">
+              <div class="cs-wf-ico indigo"><i class="fas fa-handshake"></i></div>
+              <div class="cs-wf-name">Workflow 5 – The Perfect Follow-Up Protocol</div>
+            </div>
+            <div class="cs-wf-head-right">
+              <button class="cs-copy-btn" onclick="csCopyCard('5', event)"><i class="fas fa-copy"></i> Copy</button>
+              <i class="fas fa-chevron-down cs-chevron" id="csChevron-5"></i>
+            </div>
+          </div>
+          <div class="cs-wf-body" id="csBody-5">
+            <div class="cs-wf-grid">
+              <div class="cs-inner-card">
+                <div class="cs-inner-head"><i class="fas fa-list-ul"></i> What it does</div>
+                <div class="cs-inner-body">
+                  <div class="cs-desc-item"><div class="cs-desc-dot"></div>Starts when a call ends (Zoom, phone, or VOIP).</div>
+                  <div class="cs-desc-item"><div class="cs-desc-dot"></div>Transcribes the conversation and extracts decisions and action items.</div>
+                  <div class="cs-desc-item"><div class="cs-desc-dot"></div>Auto-updates CRM notes, tasks, and deal stages accurately.</div>
+                  <div class="cs-desc-item"><div class="cs-desc-dot"></div>Drafts a personalized follow-up email summarizing next steps.</div>
+                </div>
+              </div>
+              <div class="cs-inner-card">
+                <div class="cs-inner-head"><i class="fas fa-bullhorn"></i> Sales points <span style="font-size:0.65rem;font-weight:500;text-transform:none;letter-spacing:0;margin-left:4px;">— click to copy</span></div>
+                <div class="cs-inner-body">
+                  <div class="cs-sales-item" onclick="csCopySales(this)">"Makes sure no promise, detail, or next step is ever forgotten after a call."<div class="cs-sales-copy"><i class="fas fa-copy"></i></div></div>
+                  <div class="cs-sales-item" onclick="csCopySales(this)">"Delivers 'wow-level' follow-up that impresses clients and builds trust."<div class="cs-sales-copy"><i class="fas fa-copy"></i></div></div>
+                  <div class="cs-sales-item" onclick="csCopySales(this)">"Saves reps from late-night admin — notes and follow-ups done automatically."<div class="cs-sales-copy"><i class="fas fa-copy"></i></div></div>
+                  <div class="cs-sales-item" onclick="csCopySales(this)">"Reduces deals falling through cracks because everything is documented and actioned."<div class="cs-sales-copy"><i class="fas fa-copy"></i></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /csViewCheat -->
+
+      <!-- ════════════ SALES PITCH TAB ════════════ -->
+      <div class="cs-view" id="csViewPitch">
+        {% include 'partials/sales_pitch_workflows.html' %}
+      </div>
+
+    </div><!-- /cs-scroll -->
+  </div><!-- /cs-main -->
+</div><!-- /cs-app -->
+
+<!-- Toast -->
+<div class="cs-toast" id="csToast"><i class="fas fa-check-circle"></i> <span id="csToastMsg">Copied!</span></div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// ── STATE ───────────────────────────────────
+const CS_ORDER = ['1','2','2a','2b','3','3a','3b','4','5'];
+const CS_NAV_LABELS = {
+  cheat: { '1':'AI Email Guard','2':'Idea-to-Post','2a':'Social Media','2b':'Automated Ads','3':'Lead Capture','3a':'Voice AI','3b':'Chatbot','4':'Sales Prep','5':'Follow-Up' },
+  pitch: { '1':'Email Monitoring','2':'Content Engine','2a':'Social Media','2b':'Automated Ads','3':'Lead & CRM','3a':'Voice AI','3b':'Chatbot','4':'Call Prep','5':'Post-Call Recap' }
+};
+
+let csTab = 'cheat';
+let csSidebarCollapsed = false;
+let csPitchCurrent = '1';
+
+// ── TOAST ───────────────────────────────────
+function csShowToast(msg) {
+  const t = document.getElementById('csToast');
+  document.getElementById('csToastMsg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ── SIDEBAR ─────────────────────────────────
+function csToggleSidebar() {
+  csSidebarCollapsed = !csSidebarCollapsed;
+  document.getElementById('csSidebar').classList.toggle('collapsed', csSidebarCollapsed);
+}
+
+// ── TAB SWITCH ──────────────────────────────
+function csSwitchTab(tab) {
+  csTab = tab;
+  document.getElementById('csViewCheat').classList.toggle('active', tab === 'cheat');
+  document.getElementById('csViewPitch').classList.toggle('active', tab === 'pitch');
+  document.getElementById('csBtnCheat').classList.toggle('active', tab === 'cheat');
+  document.getElementById('csBtnPitch').classList.toggle('active', tab === 'pitch');
+  document.getElementById('csTopTitle').textContent = tab === 'cheat' ? 'Sales Cheat Sheet' : 'Sales Pitch v2';
+  document.getElementById('csPitchPrev').style.display = tab === 'pitch' ? '' : 'none';
+  document.getElementById('csPitchNext').style.display = tab === 'pitch' ? '' : 'none';
+  document.getElementById('csScrollArea').scrollTo({ top: 0, behavior: 'smooth' });
+  // Update nav labels
+  CS_ORDER.forEach(id => {
+    const el = document.getElementById('csNavText-' + id);
+    if (el) el.textContent = CS_NAV_LABELS[tab][id] || '';
+  });
+  // Update strip active for pitch
+  if (tab === 'pitch') csUpdatePitchStrip(csPitchCurrent);
+}
+
+// ── CHEAT SHEET ACCORDION ───────────────────
+function csToggleCard(id, e) {
+  if (e) e.stopPropagation();
+  const head = document.querySelector(`#csCard-${id} .cs-wf-head`);
+  const body = document.getElementById('csBody-' + id);
+  const chev = document.getElementById('csChevron-' + id);
+  if (!body || !chev || !head) return;
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  head.classList.toggle('open', !isOpen);
+  chev.className = isOpen ? 'fas fa-chevron-down cs-chevron' : 'fas fa-chevron-up cs-chevron';
+}
+
+// ── NAV CLICK ───────────────────────────────
+function csNavClick(id) {
+  // Update active nav
+  CS_ORDER.forEach(i => document.getElementById('csNavItem-' + i)?.classList.remove('active'));
+  document.getElementById('csNavItem-' + id)?.classList.add('active');
+
+  if (csTab === 'cheat') {
+    // Open the card if closed, then scroll to it
+    const body = document.getElementById('csBody-' + id);
+    if (body && !body.classList.contains('open')) csToggleCard(id);
+    setTimeout(() => {
+      const card = document.getElementById('csCard-' + id);
+      if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
+  } else {
+    csPitchShow(id);
+  }
+  // Update strip
+  document.querySelectorAll('.cs-strip-step').forEach(s => s.classList.remove('active'));
+  document.querySelector(`.cs-strip-step[data-id="${id}"]`)?.classList.add('active');
+}
+
+// ── STRIP CLICK ─────────────────────────────
+function csStripClick(id) {
+  csNavClick(id);
+}
+
+// ── COPY CARD ───────────────────────────────
+function csCopyCard(id, e) {
+  if (e) e.stopPropagation();
+  const card = document.getElementById('csCard-' + id);
+  if (!card) return;
+  const name = card.querySelector('.cs-wf-name')?.innerText || '';
+  let txt = name + '\n\nWhat it does:\n';
+  card.querySelectorAll('.cs-desc-item').forEach(d => { txt += '• ' + d.innerText.trim() + '\n'; });
+  txt += '\nSales points:\n';
+  card.querySelectorAll('.cs-sales-item').forEach(s => { txt += s.childNodes[0]?.textContent.trim() + '\n'; });
+  navigator.clipboard.writeText(txt).then(() => csShowToast('Workflow copied!'));
+  const btn = e?.target.closest('.cs-copy-btn');
+  if (btn) { const orig = btn.innerHTML; btn.innerHTML = '<i class="fas fa-check"></i> Done'; setTimeout(() => btn.innerHTML = orig, 1500); }
+}
+
+function csCopySales(el) {
+  const text = el.childNodes[0]?.textContent.trim() || '';
+  navigator.clipboard.writeText(text).then(() => {
+    el.classList.add('copied');
+    csShowToast('Copied!');
+    setTimeout(() => el.classList.remove('copied'), 1300);
+  });
+}
+
+// ── COPY ALL ────────────────────────────────
+function csCopyAll() {
+  let out = '';
+  if (csTab === 'cheat') {
+    out = 'AI Business OS — Sales Cheat Sheet\n\n';
+    CS_ORDER.forEach(id => {
+      const card = document.getElementById('csCard-' + id);
+      if (!card) return;
+      out += (card.querySelector('.cs-wf-name')?.innerText || '') + '\n\nWhat it does:\n';
+      card.querySelectorAll('.cs-desc-item').forEach(d => { out += '• ' + d.innerText.trim() + '\n'; });
+      out += '\nSales points:\n';
+      card.querySelectorAll('.cs-sales-item').forEach(s => { out += s.childNodes[0]?.textContent.trim() + '\n'; });
+      out += '\n---\n\n';
+    });
+  } else {
+    out = 'AI Business OS — Sales Pitch v2\n\n';
+    CS_ORDER.forEach(id => {
+      const v = document.getElementById('spView-' + id);
+      if (!v) return;
+      out += (v.querySelector('.sp-wf-title')?.innerText || '') + '\n';
+      out += 'Benefit: ' + (v.querySelector('.sp-benefit-text')?.innerText || '') + '\n\nPitch Points:\n';
+      v.querySelectorAll('.sp-pitch').forEach(p => { out += p.childNodes[0]?.textContent.trim() + '\n'; });
+      out += '\n---\n\n';
+    });
+  }
+  navigator.clipboard.writeText(out).then(() => {
+    csShowToast('All workflows copied!');
+    const btn = document.getElementById('csCopyAllBtn');
+    if (btn) { const orig = btn.innerHTML; btn.innerHTML = '<i class="fas fa-check"></i> Copied!'; btn.classList.add('success'); setTimeout(() => { btn.innerHTML = orig; btn.classList.remove('success'); }, 1800); }
+  });
+}
+
+// ── SEARCH ──────────────────────────────────
+function csSearch(q) {
+  q = q.toLowerCase().trim();
+  if (csTab !== 'cheat') return;
+  document.querySelectorAll('.cs-wf-card').forEach(card => {
+    const text = card.innerText.toLowerCase();
+    card.style.display = (!q || text.includes(q)) ? '' : 'none';
+  });
+}
+
+// ── PITCH TAB LOGIC ─────────────────────────
+function csPitchShow(id) {
+  if (!document.getElementById('spView-' + id)) return;
+  document.querySelectorAll('#csViewPitch .sp-view').forEach(v => v.classList.remove('active'));
+  const view = document.getElementById('spView-' + id);
+  if (view) { view.classList.remove('active'); void view.offsetWidth; view.classList.add('active'); }
+  csPitchCurrent = id;
+  csUpdatePitchStrip(id);
+  document.getElementById('csScrollArea').scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function csUpdatePitchStrip(id) {
+  document.querySelectorAll('.cs-strip-step').forEach(s => {
+    s.classList.toggle('active', s.getAttribute('data-id') === id);
+  });
+  const step = document.querySelector(`.cs-strip-step[data-id="${id}"]`);
+  if (step) step.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+}
+
+function csPitchNext() {
+  const i = CS_ORDER.indexOf(csPitchCurrent);
+  if (i < CS_ORDER.length - 1) { csPitchShow(CS_ORDER[i + 1]); csNavClick(CS_ORDER[i + 1]); }
+}
+function csPitchPrev() {
+  const i = CS_ORDER.indexOf(csPitchCurrent);
+  if (i > 0) { csPitchShow(CS_ORDER[i - 1]); csNavClick(CS_ORDER[i - 1]); }
+}
+
+// Wire up pitch copy buttons (from included partial)
+function spCopyPitch(el) { csCopySales(el); }
+window.spCopyPitch = spCopyPitch;
+
+// Keyboard nav (pitch tab)
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT') return;
+  if (csTab === 'pitch') {
+    if (e.key === 'ArrowRight') csPitchNext();
+    if (e.key === 'ArrowLeft') csPitchPrev();
+  }
+});
+
+// ── INIT ────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  // Make sure first card is open
+  const body1 = document.getElementById('csBody-1');
+  const head1 = document.querySelector('#csCard-1 .cs-wf-head');
+  if (body1) body1.classList.add('open');
+  if (head1) head1.classList.add('open');
+});
+</script>
+
+<!-- Pitch partial script (if not included by the partial itself) -->
+<script>
+// Expose spShow for the pitch partial strip/nav
+window.spShow = function(id) { if (csTab === 'pitch') { csPitchShow(id); csNavClick(id); } };
+window.spNext = csPitchNext;
+window.spPrev = csPitchPrev;
+</script>
+{% endblock %}

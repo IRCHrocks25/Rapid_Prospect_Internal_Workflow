@@ -1,0 +1,1011 @@
+<!-- ============================================================
+     SALES PITCH WORKFLOWS — Redesigned Component
+     Drop this in place of your existing #salesPitchWorkflows div.
+     Requires: Font Awesome 6, Inter font (already in your base template)
+     ============================================================ -->
+
+     <style>
+        /* ── COMPONENT STYLES (uses root CSS variables from parent) ─────────────────────────────────── */
+        #salesPitchWorkflows {
+          font-family: 'Inter', -apple-system, sans-serif;
+        }
+        
+        /* ── LAYOUT ──────────────────────────────────────────────── */
+        #salesPitchWorkflows {
+          display: flex;
+          gap: 0;
+          height: 680px;
+          background: var(--bg);
+          border-radius: var(--radius-lg);
+          overflow: hidden;
+          border: 1px solid var(--border);
+          box-shadow: var(--shadow-lg);
+          position: relative;
+        }
+        
+        /* ── LEFT RAIL ───────────────────────────────────────────── */
+        .sp-rail {
+          width: 240px;
+          min-width: 240px;
+          background: var(--panel);
+          border-right: 1px solid var(--border);
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+          transition: width 0.28s ease, min-width 0.28s ease;
+          z-index: 2;
+          box-shadow: 2px 0 10px rgba(15,23,42,0.04);
+        }
+        .sp-rail.sp-rail--collapsed {
+          width: 64px;
+          min-width: 64px;
+        }
+        
+        .sp-rail-head {
+          padding: 16px 14px 14px;
+          border-bottom: 1px solid var(--border);
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          flex-shrink: 0;
+          gap: 10px;
+        }
+        .sp-rail-label {
+          font-size: 0.68rem;
+          font-weight: 900;
+          text-transform: uppercase;
+          letter-spacing: 0.12em;
+          color: var(--muted);
+          white-space: nowrap;
+          overflow: hidden;
+        }
+        .sp-rail--collapsed .sp-rail-label { display: none; }
+        .sp-collapse-btn {
+          width: 26px; height: 26px;
+          border-radius: 7px;
+          border: 1px solid var(--border);
+          background: transparent;
+          cursor: pointer;
+          display: flex; align-items: center; justify-content: center;
+          color: var(--muted);
+          font-size: 0.72rem;
+          flex-shrink: 0;
+          transition: all 0.14s;
+        }
+        .sp-collapse-btn:hover { background: rgba(14,165,233,0.1); color: var(--accent); }
+        
+        .sp-nav { flex: 1; overflow-y: auto; padding: 8px 6px; }
+        .sp-nav-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 9px 8px;
+          border-radius: var(--radius-sm);
+          cursor: pointer;
+          color: rgba(15,23,42,0.65);
+          font-size: 0.82rem;
+          font-weight: 500;
+          margin-bottom: 2px;
+          transition: all 0.13s;
+          white-space: nowrap;
+          overflow: hidden;
+          border: 1px solid transparent;
+          user-select: none;
+        }
+        .sp-nav-item:hover { background: rgba(14,165,233,0.07); color: var(--accent); }
+        .sp-nav-item.active {
+          background: rgba(14,165,233,0.1);
+          color: var(--accent);
+          font-weight: 700;
+          border-color: rgba(14,165,233,0.18);
+        }
+        .sp-nav-icon {
+          width: 28px; height: 28px;
+          border-radius: 8px;
+          background: rgba(15,23,42,0.04);
+          display: flex; align-items: center; justify-content: center;
+          font-size: 0.75rem;
+          color: var(--muted);
+          flex-shrink: 0;
+          transition: all 0.13s;
+        }
+        .sp-nav-item.active .sp-nav-icon,
+        .sp-nav-item:hover .sp-nav-icon {
+          background: rgba(14,165,233,0.14);
+          color: var(--accent);
+        }
+        .sp-nav-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .sp-rail--collapsed .sp-nav-text { display: none; }
+        .sp-rail--collapsed .sp-nav-item { justify-content: center; padding: 9px 0; }
+        
+        .sp-rail-foot {
+          padding: 10px 8px;
+          border-top: 1px solid var(--border);
+          display: flex;
+          gap: 6px;
+          flex-shrink: 0;
+        }
+        .sp-rail--collapsed .sp-rail-foot { flex-direction: column; align-items: center; }
+        .sp-foot-btn {
+          flex: 1;
+          padding: 8px 4px;
+          border-radius: var(--radius-sm);
+          border: 1px solid var(--border);
+          background: transparent;
+          cursor: pointer;
+          display: flex; align-items: center; justify-content: center; gap: 5px;
+          font-size: 0.74rem; font-weight: 700;
+          color: var(--muted);
+          transition: all 0.13s;
+          white-space: nowrap;
+          overflow: hidden;
+        }
+        .sp-foot-btn:hover { background: rgba(15,23,42,0.04); color: var(--text); }
+        .sp-foot-btn.sp-foot-btn--primary {
+          background: var(--accent); color: white; border-color: var(--accent);
+        }
+        .sp-foot-btn.sp-foot-btn--primary:hover { background: #0284c7; }
+        .sp-foot-btn-text { overflow: hidden; }
+        .sp-rail--collapsed .sp-foot-btn-text { display: none; }
+        .sp-rail--collapsed .sp-foot-btn { width: 40px; height: 34px; flex: none; padding: 0; }
+        
+        /* ── MAIN PANEL ──────────────────────────────────────────── */
+        .sp-main {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+          min-width: 0;
+        }
+        
+        /* Progress strip */
+        .sp-strip {
+          background: var(--panel);
+          border-bottom: 1px solid var(--border);
+          display: flex;
+          overflow-x: auto;
+          flex-shrink: 0;
+          scrollbar-width: none;
+        }
+        .sp-strip::-webkit-scrollbar { display: none; }
+        .sp-step {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          padding: 9px 13px;
+          border-bottom: 2px solid transparent;
+          cursor: pointer;
+          white-space: nowrap;
+          font-size: 0.75rem;
+          font-weight: 600;
+          color: var(--muted);
+          flex-shrink: 0;
+          transition: all 0.14s;
+          user-select: none;
+        }
+        .sp-step:hover { color: var(--text); }
+        .sp-step.active { color: var(--accent); border-bottom-color: var(--accent); }
+        .sp-step-num {
+          width: 17px; height: 17px;
+          border-radius: 50%;
+          background: rgba(15,23,42,0.07);
+          display: flex; align-items: center; justify-content: center;
+          font-size: 0.62rem; font-weight: 800;
+          color: var(--muted);
+          flex-shrink: 0;
+        }
+        .sp-step.active .sp-step-num { background: var(--accent); color: white; }
+        
+        /* Scroll area */
+        .sp-scroll { flex: 1; overflow-y: auto; padding: 18px 20px; }
+        
+        /* Workflow views */
+        .sp-view { display: none; }
+        .sp-view.active { display: block; }
+        
+        /* Hero */
+        .sp-hero {
+          background: var(--panel);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-lg);
+          overflow: hidden;
+          margin-bottom: 14px;
+          box-shadow: var(--shadow);
+          animation: spFadeUp 0.22s ease both;
+        }
+        .sp-hero-top {
+          background: linear-gradient(135deg, rgba(14,165,233,0.07) 0%, rgba(14,165,233,0.01) 100%);
+          padding: 20px 22px 16px;
+          border-bottom: 1px solid var(--border);
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: 12px;
+        }
+        .sp-wf-tag {
+          display: inline-flex; align-items: center; gap: 5px;
+          background: rgba(14,165,233,0.11);
+          color: var(--accent);
+          font-size: 0.67rem; font-weight: 800;
+          text-transform: uppercase; letter-spacing: 0.1em;
+          padding: 3px 9px; border-radius: 20px;
+          border: 1px solid rgba(14,165,233,0.2);
+          margin-bottom: 8px;
+        }
+        .sp-wf-title {
+          font-size: 1.12rem;
+          font-weight: 900;
+          letter-spacing: -0.3px;
+          line-height: 1.3;
+          color: var(--text);
+        }
+        .sp-hero-nav { display: flex; gap: 6px; flex-shrink: 0; }
+        .sp-nav-arrow {
+          width: 30px; height: 30px;
+          border-radius: 8px;
+          border: 1px solid var(--border);
+          background: var(--panel);
+          cursor: pointer;
+          display: flex; align-items: center; justify-content: center;
+          color: var(--muted);
+          font-size: 0.78rem;
+          transition: all 0.13s;
+        }
+        .sp-nav-arrow:hover { background: var(--accent); color: white; border-color: var(--accent); }
+        .sp-nav-arrow:disabled { opacity: 0.3; cursor: default; }
+        .sp-nav-arrow:disabled:hover { background: var(--panel); color: var(--muted); border-color: var(--border); }
+        
+        .sp-benefit-bar {
+          padding: 13px 22px;
+          display: flex; align-items: center; gap: 11px;
+        }
+        .sp-benefit-icon {
+          width: 34px; height: 34px;
+          border-radius: 10px;
+          background: rgba(14,165,233,0.1);
+          border: 1px solid rgba(14,165,233,0.18);
+          display: flex; align-items: center; justify-content: center;
+          color: var(--accent); font-size: 0.88rem;
+          flex-shrink: 0;
+        }
+        .sp-benefit-label {
+          font-size: 0.67rem; font-weight: 800;
+          text-transform: uppercase; letter-spacing: 0.12em;
+          color: var(--accent); margin-bottom: 3px;
+        }
+        .sp-benefit-text {
+          font-size: 0.88rem; font-weight: 600;
+          color: rgba(15,23,42,0.9); line-height: 1.5;
+        }
+        
+        /* Two-col */
+        .sp-two-col {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 14px;
+          animation: spFadeUp 0.26s 0.04s ease both;
+        }
+        @media (max-width: 700px) { .sp-two-col { grid-template-columns: 1fr; } }
+        
+        .sp-card {
+          background: var(--panel);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-lg);
+          overflow: hidden;
+          box-shadow: var(--shadow);
+        }
+        .sp-card-head {
+          padding: 10px 15px;
+          border-bottom: 1px solid var(--border);
+          background: rgba(15,23,42,0.015);
+          display: flex; align-items: center; justify-content: space-between;
+        }
+        .sp-card-title {
+          font-size: 0.7rem; font-weight: 800;
+          text-transform: uppercase; letter-spacing: 0.1em;
+          color: var(--muted);
+          display: flex; align-items: center; gap: 5px;
+        }
+        .sp-card-title i { color: var(--accent); }
+        .sp-card-hint {
+          font-size: 0.67rem; color: var(--muted); font-weight: 500;
+        }
+        .sp-card-body { padding: 12px 13px; }
+        
+        /* Features */
+        .sp-feat-list { display: flex; flex-direction: column; gap: 7px; }
+        .sp-feat {
+          display: flex; align-items: flex-start; gap: 8px;
+          padding: 8px 10px;
+          border-radius: var(--radius-sm);
+          border: 1px solid var(--border);
+          background: rgba(15,23,42,0.015);
+          transition: all 0.13s;
+        }
+        .sp-feat:hover {
+          border-color: rgba(14,165,233,0.2);
+          background: rgba(14,165,233,0.04);
+          transform: translateX(2px);
+        }
+        .sp-feat-dot {
+          width: 5px; height: 5px;
+          border-radius: 50%;
+          background: var(--accent);
+          margin-top: 5px; flex-shrink: 0;
+        }
+        .sp-feat-label {
+          font-size: 0.8rem; font-weight: 700;
+          color: var(--text); margin-bottom: 1px;
+        }
+        .sp-feat-desc { font-size: 0.76rem; color: var(--muted); line-height: 1.4; }
+        
+        /* Pitch points */
+        .sp-pitch-list { display: flex; flex-direction: column; gap: 8px; }
+        .sp-pitch {
+          padding: 10px 13px;
+          border-radius: var(--radius-sm);
+          background: rgba(14,165,233,0.05);
+          border: 1px solid rgba(14,165,233,0.13);
+          border-left: 3px solid var(--accent);
+          font-size: 0.85rem; font-weight: 600;
+          color: rgba(15,23,42,0.88);
+          line-height: 1.6;
+          cursor: pointer;
+          transition: all 0.14s;
+          position: relative;
+          user-select: none;
+        }
+        .sp-pitch:hover {
+          background: rgba(14,165,233,0.09);
+          transform: translateX(3px);
+        }
+        .sp-pitch.sp-copied {
+          background: rgba(34,197,94,0.08) !important;
+          border-color: rgba(34,197,94,0.28) !important;
+          border-left-color: var(--accent-2) !important;
+        }
+        .sp-copy-badge {
+          position: absolute; right: 7px; top: 50%; transform: translateY(-50%);
+          width: 20px; height: 20px;
+          border-radius: 5px;
+          background: var(--panel);
+          border: 1px solid rgba(14,165,233,0.2);
+          display: flex; align-items: center; justify-content: center;
+          font-size: 0.6rem; color: var(--accent);
+          opacity: 0;
+          transition: opacity 0.13s;
+        }
+        .sp-pitch:hover .sp-copy-badge { opacity: 1; }
+        
+        /* Tip banner */
+        .sp-tip {
+          display: flex; align-items: center; gap: 8px;
+          background: rgba(245,158,11,0.07);
+          border: 1px solid rgba(245,158,11,0.2);
+          border-radius: var(--radius-sm);
+          padding: 9px 12px;
+          margin-bottom: 14px;
+          font-size: 0.77rem; color: rgba(100,60,0,0.85);
+          font-weight: 500;
+          animation: spFadeUp 0.18s ease both;
+        }
+        .sp-tip i { color: var(--accent-3); flex-shrink: 0; }
+        .sp-tip-close {
+          margin-left: auto; background: none; border: none;
+          cursor: pointer; font-size: 0.7rem; font-weight: 800;
+          color: var(--accent-3); padding: 0 2px;
+        }
+        .sp-kbd {
+          display: inline-flex; align-items: center;
+          padding: 1px 5px; border-radius: 4px;
+          background: rgba(15,23,42,0.08);
+          font-size: 0.67rem; font-weight: 700;
+          color: var(--muted);
+          border: 1px solid rgba(15,23,42,0.12);
+          font-family: monospace;
+        }
+        
+        /* Toast */
+        .sp-toast {
+          position: absolute;
+          bottom: 20px; right: 20px;
+          background: var(--text); color: white;
+          padding: 10px 16px;
+          border-radius: var(--radius-md);
+          font-size: 0.8rem; font-weight: 600;
+          display: flex; align-items: center; gap: 8px;
+          box-shadow: 0 8px 28px rgba(15,23,42,0.22);
+          transform: translateY(70px); opacity: 0;
+          transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+          pointer-events: none;
+          z-index: 99;
+        }
+        .sp-toast.show { transform: translateY(0); opacity: 1; }
+        .sp-toast i { color: var(--accent-2); }
+        
+        /* Scrollbar */
+        .sp-nav::-webkit-scrollbar,
+        .sp-scroll::-webkit-scrollbar { width: 4px; }
+        .sp-nav::-webkit-scrollbar-thumb,
+        .sp-scroll::-webkit-scrollbar-thumb { background: rgba(15,23,42,0.1); border-radius: 4px; }
+        
+        /* When embedded in cheat sheet, use full height and hide duplicate UI */
+        #csViewPitch #salesPitchWorkflows {
+          height: 100%;
+          border-radius: 0;
+          border: none;
+          box-shadow: none;
+          background: transparent;
+        }
+        #csViewPitch #salesPitchWorkflows .sp-rail,
+        #csViewPitch #salesPitchWorkflows .sp-strip {
+          display: none !important;
+        }
+        #csViewPitch #salesPitchWorkflows .sp-main {
+          margin-left: 0;
+        }
+        
+        /* Animation */
+        @keyframes spFadeUp {
+          from { opacity: 0; transform: translateY(10px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Print overrides */
+        @media print {
+          #salesPitchWorkflows { height: auto; display: block; box-shadow: none; border: none; }
+          .sp-rail, .sp-strip, .sp-tip, .sp-hero-nav { display: none !important; }
+          .sp-main { overflow: visible; }
+          .sp-scroll { overflow: visible; padding: 20px; }
+          .sp-view { display: block !important; margin-bottom: 24px; }
+          .sp-toast { display: none !important; }
+        }
+        </style>
+        
+        <!-- ======================================================== -->
+        <div id="salesPitchWorkflows">
+        
+          <!-- LEFT RAIL -->
+          <aside class="sp-rail" id="spRail">
+            <div class="sp-rail-head">
+              <span class="sp-rail-label">Workflows</span>
+              <button class="sp-collapse-btn" onclick="spToggleRail()" title="Collapse">
+                <i class="fas fa-bars"></i>
+              </button>
+            </div>
+            <nav class="sp-nav">
+              <div class="sp-nav-item active" onclick="spShow('1')" id="spNav-1">
+                <div class="sp-nav-icon"><i class="fas fa-envelope"></i></div>
+                <span class="sp-nav-text">Email Monitoring</span>
+              </div>
+              <div class="sp-nav-item" onclick="spShow('2')" id="spNav-2">
+                <div class="sp-nav-icon"><i class="fas fa-pen-nib"></i></div>
+                <span class="sp-nav-text">Content Engine</span>
+              </div>
+              <div class="sp-nav-item" onclick="spShow('2a')" id="spNav-2a">
+                <div class="sp-nav-icon"><i class="fas fa-hashtag"></i></div>
+                <span class="sp-nav-text">Social Media</span>
+              </div>
+              <div class="sp-nav-item" onclick="spShow('2b')" id="spNav-2b">
+                <div class="sp-nav-icon"><i class="fas fa-ad"></i></div>
+                <span class="sp-nav-text">Automated Ads</span>
+              </div>
+              <div class="sp-nav-item" onclick="spShow('3')" id="spNav-3">
+                <div class="sp-nav-icon"><i class="fas fa-user-plus"></i></div>
+                <span class="sp-nav-text">Lead & CRM</span>
+              </div>
+              <div class="sp-nav-item" onclick="spShow('3a')" id="spNav-3a">
+                <div class="sp-nav-icon"><i class="fas fa-phone-alt"></i></div>
+                <span class="sp-nav-text">Voice AI</span>
+              </div>
+              <div class="sp-nav-item" onclick="spShow('3b')" id="spNav-3b">
+                <div class="sp-nav-icon"><i class="fas fa-comment-dots"></i></div>
+                <span class="sp-nav-text">Chatbot</span>
+              </div>
+              <div class="sp-nav-item" onclick="spShow('4')" id="spNav-4">
+                <div class="sp-nav-icon"><i class="fas fa-calendar-check"></i></div>
+                <span class="sp-nav-text">Call Prep</span>
+              </div>
+              <div class="sp-nav-item" onclick="spShow('5')" id="spNav-5">
+                <div class="sp-nav-icon"><i class="fas fa-clipboard-list"></i></div>
+                <span class="sp-nav-text">Post-Call Recap</span>
+              </div>
+            </nav>
+            <div class="sp-rail-foot">
+              <button class="sp-foot-btn sp-foot-btn--primary" onclick="spCopyAll()">
+                <i class="fas fa-copy"></i><span class="sp-foot-btn-text"> Copy All</span>
+              </button>
+              <button class="sp-foot-btn" onclick="window.print()">
+                <i class="fas fa-print"></i><span class="sp-foot-btn-text"> Print</span>
+              </button>
+            </div>
+          </aside>
+        
+          <!-- MAIN -->
+          <div class="sp-main">
+        
+            <!-- Progress strip -->
+            <div class="sp-strip" id="spStrip">
+              <div class="sp-step active" onclick="spShow('1')" data-id="1"><div class="sp-step-num">1</div>Email</div>
+              <div class="sp-step" onclick="spShow('2')" data-id="2"><div class="sp-step-num">2</div>Content</div>
+              <div class="sp-step" onclick="spShow('2a')" data-id="2a"><div class="sp-step-num">2A</div>Social</div>
+              <div class="sp-step" onclick="spShow('2b')" data-id="2b"><div class="sp-step-num">2B</div>Ads</div>
+              <div class="sp-step" onclick="spShow('3')" data-id="3"><div class="sp-step-num">3</div>CRM</div>
+              <div class="sp-step" onclick="spShow('3a')" data-id="3a"><div class="sp-step-num">3A</div>Voice</div>
+              <div class="sp-step" onclick="spShow('3b')" data-id="3b"><div class="sp-step-num">3B</div>Chat</div>
+              <div class="sp-step" onclick="spShow('4')" data-id="4"><div class="sp-step-num">4</div>Prep</div>
+              <div class="sp-step" onclick="spShow('5')" data-id="5"><div class="sp-step-num">5</div>Recap</div>
+            </div>
+        
+            <!-- Scroll container -->
+            <div class="sp-scroll" id="spScroll">
+        
+              <!-- Tip bar -->
+              
+        
+              <!-- ── WORKFLOW 1 ───────────────────────────── -->
+              <div class="sp-view active" id="spView-1">
+                <div class="sp-hero">
+                  <div class="sp-hero-top">
+                    <div>
+                      <div class="sp-wf-tag"><i class="fas fa-envelope"></i> Workflow 1</div>
+                      <div class="sp-wf-title">AI Email Monitoring & Drafted Responses</div>
+                    </div>
+                    <div class="sp-hero-nav">
+                      <button class="sp-nav-arrow" onclick="spPrev()" disabled id="spPrev-1"><i class="fas fa-chevron-left"></i></button>
+                      <button class="sp-nav-arrow" onclick="spNext()"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                  </div>
+                  <div class="sp-benefit-bar">
+                    <div class="sp-benefit-icon"><i class="fas fa-bolt"></i></div>
+                    <div><div class="sp-benefit-label">Core Benefit</div>
+                    <div class="sp-benefit-text">Reclaim 1–2 hours daily by eliminating inbox overload and decision fatigue.</div></div>
+                  </div>
+                </div>
+                <div class="sp-two-col">
+                  <div class="sp-card">
+                    <div class="sp-card-head"><div class="sp-card-title"><i class="fas fa-list-ul"></i> Features</div></div>
+                    <div class="sp-card-body"><div class="sp-feat-list">
+                      <div class="sp-feat"><div class="sp-feat-dot"></div><div><div class="sp-feat-label">Real-Time Monitoring</div><div class="sp-feat-desc">Connects to Gmail or Outlook to read incoming mail.</div></div></div>
+                      <div class="sp-feat"><div class="sp-feat-dot"></div><div><div class="sp-feat-label">AI Classification</div><div class="sp-feat-desc">Filters emails by priority and determines if a response is required.</div></div></div>
+                      <div class="sp-feat"><div class="sp-feat-dot"></div><div><div class="sp-feat-label">Smart Drafting</div><div class="sp-feat-desc">Generates professional replies in the client's specific brand voice.</div></div></div>
+                      <div class="sp-feat"><div class="sp-feat-dot"></div><div><div class="sp-feat-label">Human Control</div><div class="sp-feat-desc">Saves drafts for final review — nothing sends without approval.</div></div></div>
+                      <div class="sp-feat"><div class="sp-feat-dot"></div><div><div class="sp-feat-label">Priority Tagging</div><div class="sp-feat-desc">Alerts users to urgent messages so nothing gets lost.</div></div></div>
+                    </div></div>
+                  </div>
+                  <div class="sp-card">
+                    <div class="sp-card-head"><div class="sp-card-title"><i class="fas fa-bullhorn"></i> Sales Pitch Points</div><span class="sp-card-hint">Click to copy</span></div>
+                    <div class="sp-card-body"><div class="sp-pitch-list">
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"Imagine having a personal executive assistant who reads every email and writes 90% of the response for you—for a fraction of the cost."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"Stop starting from a blank page. Our AI drafts the reply so you just have to click 'Send'."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"Eliminate 'Inbox Anxiety.' You'll never have to wonder if you missed an urgent client request again."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"This system saves you up to 10 hours a week—that is an entire workday given back to you every single week."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"It doesn't rob you of control; it gives you options. You always have the final say, but the heavy lifting is done for you."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                    </div></div>
+                  </div>
+                </div>
+              </div>
+        
+              <!-- ── WORKFLOW 2 ───────────────────────────── -->
+              <div class="sp-view" id="spView-2">
+                <div class="sp-hero">
+                  <div class="sp-hero-top">
+                    <div>
+                      <div class="sp-wf-tag"><i class="fas fa-pen-nib"></i> Workflow 2</div>
+                      <div class="sp-wf-title">Idea → Ready-to-Post Content Engine</div>
+                    </div>
+                    <div class="sp-hero-nav">
+                      <button class="sp-nav-arrow" onclick="spPrev()"><i class="fas fa-chevron-left"></i></button>
+                      <button class="sp-nav-arrow" onclick="spNext()"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                  </div>
+                  <div class="sp-benefit-bar">
+                    <div class="sp-benefit-icon"><i class="fas fa-magic"></i></div>
+                    <div><div class="sp-benefit-label">Core Benefit</div>
+                    <div class="sp-benefit-text">Remove content paralysis by turning raw ideas into consistent social media output.</div></div>
+                  </div>
+                </div>
+                <div class="sp-two-col">
+                  <div class="sp-card">
+                    <div class="sp-card-head"><div class="sp-card-title"><i class="fas fa-list-ul"></i> Features</div></div>
+                    <div class="sp-card-body"><div class="sp-feat-list">
+                      <div class="sp-feat"><div class="sp-feat-dot"></div><div><div class="sp-feat-label">Multi-Format Capture</div><div class="sp-feat-desc">Accepts text input, forms, or voice notes.</div></div></div>
+                      <div class="sp-feat"><div class="sp-feat-dot"></div><div><div class="sp-feat-label">AI Content Generation</div><div class="sp-feat-desc">Converts one idea into captions and posts for multiple platforms.</div></div></div>
+                      <div class="sp-feat"><div class="sp-feat-dot"></div><div><div class="sp-feat-label">Platform Optimization</div><div class="sp-feat-desc">Automatically formats for Instagram, Facebook, and LinkedIn.</div></div></div>
+                      <div class="sp-feat"><div class="sp-feat-dot"></div><div><div class="sp-feat-label">Auto-Scheduling</div><div class="sp-feat-desc">Queues and publishes content based on optimal timing.</div></div></div>
+                      <div class="sp-feat"><div class="sp-feat-dot"></div><div><div class="sp-feat-label">Brand Voice Alignment</div><div class="sp-feat-desc">Ensures every post sounds exactly like the client.</div></div></div>
+                    </div></div>
+                  </div>
+                  <div class="sp-card">
+                    <div class="sp-card-head"><div class="sp-card-title"><i class="fas fa-bullhorn"></i> Sales Pitch Points</div><span class="sp-card-hint">Click to copy</span></div>
+                    <div class="sp-card-body"><div class="sp-pitch-list">
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"Turn your commute into your marketing department. Just speak a thought into your phone, and the system turns it into a week's worth of posts."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"Consistency builds trust, but it's hard to maintain. This tool ensures you show up on social media every day, even when you're on vacation."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"Stop struggling with 'Writer's Block.' One raw idea becomes 3 to 5 pieces of polished content automatically."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"You don't need to be a social media expert to look like one. The AI handles the hashtags, formatting, and scheduling for you."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"Get the visibility of a full marketing team without the overhead costs."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                    </div></div>
+                  </div>
+                </div>
+              </div>
+        
+              <!-- ── WORKFLOW 2A ──────────────────────────── -->
+              <div class="sp-view" id="spView-2a">
+                <div class="sp-hero">
+                  <div class="sp-hero-top">
+                    <div>
+                      <div class="sp-wf-tag"><i class="fas fa-hashtag"></i> Workflow 2A</div>
+                      <div class="sp-wf-title">Automated Social Media (Maintenance)</div>
+                    </div>
+                    <div class="sp-hero-nav">
+                      <button class="sp-nav-arrow" onclick="spPrev()"><i class="fas fa-chevron-left"></i></button>
+                      <button class="sp-nav-arrow" onclick="spNext()"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                  </div>
+                  <div class="sp-benefit-bar">
+                    <div class="sp-benefit-icon"><i class="fas fa-shield-alt"></i></div>
+                    <div><div class="sp-benefit-label">Core Benefit</div>
+                    <div class="sp-benefit-text">Maintain a consistent, professional online presence without daily effort.</div></div>
+                  </div>
+                </div>
+                <div class="sp-two-col">
+                  <div class="sp-card">
+                    <div class="sp-card-head"><div class="sp-card-title"><i class="fas fa-list-ul"></i> Features</div></div>
+                    <div class="sp-card-body"><div class="sp-feat-list">
+                      <div class="sp-feat"><div class="sp-feat-dot"></div><div><div class="sp-feat-label">Voice-to-Post</div><div class="sp-feat-desc">Turns raw voice messages into polished content.</div></div></div>
+                      <div class="sp-feat"><div class="sp-feat-dot"></div><div><div class="sp-feat-label">Cross-Platform Generation</div><div class="sp-feat-desc">Creates posts for Instagram, Facebook, and LinkedIn simultaneously.</div></div></div>
+                      <div class="sp-feat"><div class="sp-feat-dot"></div><div><div class="sp-feat-label">Automated Scheduling</div><div class="sp-feat-desc">Handles the calendar and posting times automatically.</div></div></div>
+                      <div class="sp-feat"><div class="sp-feat-dot"></div><div><div class="sp-feat-label">Brand Consistency</div><div class="sp-feat-desc">Maintains specific messaging and tone across all channels.</div></div></div>
+                    </div></div>
+                  </div>
+                  <div class="sp-card">
+                    <div class="sp-card-head"><div class="sp-card-title"><i class="fas fa-bullhorn"></i> Sales Pitch Points</div><span class="sp-card-hint">Click to copy</span></div>
+                    <div class="sp-card-body"><div class="sp-pitch-list">
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"This is your baseline insurance policy for visibility—you will never 'go dark' on social media again."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"Free yourself from the daily grind of logging in to post. The system handles the logistics so you can focus on your business."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"Expand your reach instantly. We take one piece of content and format it perfectly for every major platform."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"Your brand voice remains consistent 100% of the time, ensuring your audience always recognizes you."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"It's not just about posting; it's about freeing up your mental bandwidth for high-revenue activities."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                    </div></div>
+                  </div>
+                </div>
+              </div>
+        
+              <!-- ── WORKFLOW 2B ──────────────────────────── -->
+              <div class="sp-view" id="spView-2b">
+                <div class="sp-hero">
+                  <div class="sp-hero-top">
+                    <div>
+                      <div class="sp-wf-tag"><i class="fas fa-ad"></i> Workflow 2B</div>
+                      <div class="sp-wf-title">Automated Ads (Paid Media)</div>
+                    </div>
+                    <div class="sp-hero-nav">
+                      <button class="sp-nav-arrow" onclick="spPrev()"><i class="fas fa-chevron-left"></i></button>
+                      <button class="sp-nav-arrow" onclick="spNext()"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                  </div>
+                  <div class="sp-benefit-bar">
+                    <div class="sp-benefit-icon"><i class="fas fa-chart-line"></i></div>
+                    <div><div class="sp-benefit-label">Core Benefit</div>
+                    <div class="sp-benefit-text">Launch and improve high-converting ad campaigns without constant manual tweaking.</div></div>
+                  </div>
+                </div>
+                <div class="sp-two-col">
+                  <div class="sp-card">
+                    <div class="sp-card-head"><div class="sp-card-title"><i class="fas fa-list-ul"></i> Features</div></div>
+                    <div class="sp-card-body"><div class="sp-feat-list">
+                      <div class="sp-feat"><div class="sp-feat-dot"></div><div><div class="sp-feat-label">Auto-Copywriting</div><div class="sp-feat-desc">Generates ad copy and headlines automatically.</div></div></div>
+                      <div class="sp-feat"><div class="sp-feat-dot"></div><div><div class="sp-feat-label">Variation Testing</div><div class="sp-feat-desc">Creates multiple variations to test what works best.</div></div></div>
+                      <div class="sp-feat"><div class="sp-feat-dot"></div><div><div class="sp-feat-label">Data Optimization</div><div class="sp-feat-desc">Refines messaging based on performance data.</div></div></div>
+                      <div class="sp-feat"><div class="sp-feat-dot"></div><div><div class="sp-feat-label">Multi-Platform Support</div><div class="sp-feat-desc">Supports Meta (Facebook/Instagram) and Google ad platforms.</div></div></div>
+                    </div></div>
+                  </div>
+                  <div class="sp-card">
+                    <div class="sp-card-head"><div class="sp-card-title"><i class="fas fa-bullhorn"></i> Sales Pitch Points</div><span class="sp-card-hint">Click to copy</span></div>
+                    <div class="sp-card-body"><div class="sp-pitch-list">
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"Stop burning budget on bad ads. The AI creates multiple variations to find the winner faster than a human could."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"You don't need to hire an expensive agency to run effective ads. This system handles the creative heavy lifting."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"Launch campaigns in minutes, not days. From offer input to deployment, the process is streamlined."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"The system learns what works. It uses performance data to continuously optimize your messaging."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"Scale your revenue by automating the hardest part of paid ads: writing copy that actually converts."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                    </div></div>
+                  </div>
+                </div>
+              </div>
+        
+              <!-- ── WORKFLOW 3 ───────────────────────────── -->
+              <div class="sp-view" id="spView-3">
+                <div class="sp-hero">
+                  <div class="sp-hero-top">
+                    <div>
+                      <div class="sp-wf-tag"><i class="fas fa-user-plus"></i> Workflow 3</div>
+                      <div class="sp-wf-title">Lead Intake → AI Qualification → CRM Automation</div>
+                    </div>
+                    <div class="sp-hero-nav">
+                      <button class="sp-nav-arrow" onclick="spPrev()"><i class="fas fa-chevron-left"></i></button>
+                      <button class="sp-nav-arrow" onclick="spNext()"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                  </div>
+                  <div class="sp-benefit-bar">
+                    <div class="sp-benefit-icon"><i class="fas fa-crosshairs"></i></div>
+                    <div><div class="sp-benefit-label">Core Benefit</div>
+                    <div class="sp-benefit-text">Ensure every lead gets the right response at the right time.</div></div>
+                  </div>
+                </div>
+                <div class="sp-two-col">
+                  <div class="sp-card">
+                    <div class="sp-card-head"><div class="sp-card-title"><i class="fas fa-list-ul"></i> Features</div></div>
+                    <div class="sp-card-body"><div class="sp-feat-list">
+                      <div class="sp-feat"><div class="sp-feat-dot"></div><div><div class="sp-feat-label">Universal Capture</div><div class="sp-feat-desc">Consolidates leads from websites, chat, and forms.</div></div></div>
+                      <div class="sp-feat"><div class="sp-feat-dot"></div><div><div class="sp-feat-label">AI Scoring</div><div class="sp-feat-desc">Classifies leads based on quality and intent.</div></div></div>
+                      <div class="sp-feat"><div class="sp-feat-dot"></div><div><div class="sp-feat-label">Instant Engagement</div><div class="sp-feat-desc">Triggers immediate follow-ups via email or SMS.</div></div></div>
+                      <div class="sp-feat"><div class="sp-feat-dot"></div><div><div class="sp-feat-label">CRM Hygiene</div><div class="sp-feat-desc">Automatically updates pipeline stages and contact details.</div></div></div>
+                    </div></div>
+                  </div>
+                  <div class="sp-card">
+                    <div class="sp-card-head"><div class="sp-card-title"><i class="fas fa-bullhorn"></i> Sales Pitch Points</div><span class="sp-card-hint">Click to copy</span></div>
+                    <div class="sp-card-body"><div class="sp-pitch-list">
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"The '5-minute rule' is real—leads who get a response instantly are significantly more likely to close. Our system responds instantly."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"Stop chasing 'tire kickers.' The AI qualifies the lead for you, so you only spend time on people ready to buy."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"We eliminate data entry. No more copying and pasting lead details into a spreadsheet; it appears in your CRM automatically."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"Your pipeline stays up to date automatically, giving you a clear view of your revenue potential at all times."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"This is your 'safety net' for revenue. We ensure no potential customer ever slips through the cracks."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                    </div></div>
+                  </div>
+                </div>
+              </div>
+        
+              <!-- ── WORKFLOW 3A ──────────────────────────── -->
+              <div class="sp-view" id="spView-3a">
+                <div class="sp-hero">
+                  <div class="sp-hero-top">
+                    <div>
+                      <div class="sp-wf-tag"><i class="fas fa-phone-alt"></i> Workflow 3A</div>
+                      <div class="sp-wf-title">Automated Voice AI</div>
+                    </div>
+                    <div class="sp-hero-nav">
+                      <button class="sp-nav-arrow" onclick="spPrev()"><i class="fas fa-chevron-left"></i></button>
+                      <button class="sp-nav-arrow" onclick="spNext()"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                  </div>
+                  <div class="sp-benefit-bar">
+                    <div class="sp-benefit-icon"><i class="fas fa-moon"></i></div>
+                    <div><div class="sp-benefit-label">Core Benefit</div>
+                    <div class="sp-benefit-text">Ensure no call goes unanswered and every inquiry is handled professionally 24/7.</div></div>
+                  </div>
+                </div>
+                <div class="sp-two-col">
+                  <div class="sp-card">
+                    <div class="sp-card-head"><div class="sp-card-title"><i class="fas fa-list-ul"></i> Features</div></div>
+                    <div class="sp-card-body"><div class="sp-feat-list">
+                      <div class="sp-feat"><div class="sp-feat-dot"></div><div><div class="sp-feat-label">Natural Voice Assistant</div><div class="sp-feat-desc">Answers incoming calls with a human-sounding AI.</div></div></div>
+                      <div class="sp-feat"><div class="sp-feat-dot"></div><div><div class="sp-feat-label">Intent Capture</div><div class="sp-feat-desc">Listens to the caller to understand their needs.</div></div></div>
+                      <div class="sp-feat"><div class="sp-feat-dot"></div><div><div class="sp-feat-label">Auto-Qualification</div><div class="sp-feat-desc">Asks questions to qualify leads in real-time.</div></div></div>
+                      <div class="sp-feat"><div class="sp-feat-dot"></div><div><div class="sp-feat-label">Smart Routing</div><div class="sp-feat-desc">Directs calls or triggers follow-ups based on the conversation.</div></div></div>
+                    </div></div>
+                  </div>
+                  <div class="sp-card">
+                    <div class="sp-card-head"><div class="sp-card-title"><i class="fas fa-bullhorn"></i> Sales Pitch Points</div><span class="sp-card-hint">Click to copy</span></div>
+                    <div class="sp-card-body"><div class="sp-pitch-list">
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"Your business is now open 24 hours a day. Whether a lead calls at 2 PM or 2 AM, they get a professional response."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"Never miss a customized opportunity just because you were on another line or in a meeting."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"Give your business a 'Fortune 500' feel with a professional AI receptionist that costs less than a phone bill."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"The AI filters the noise. It captures the details so you only have to call back the qualified leads."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"Capture revenue while you sleep. The AI can take orders, book appointments, or capture leads overnight."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                    </div></div>
+                  </div>
+                </div>
+              </div>
+        
+              <!-- ── WORKFLOW 3B ──────────────────────────── -->
+              <div class="sp-view" id="spView-3b">
+                <div class="sp-hero">
+                  <div class="sp-hero-top">
+                    <div>
+                      <div class="sp-wf-tag"><i class="fas fa-comment-dots"></i> Workflow 3B</div>
+                      <div class="sp-wf-title">Automated Chatbot</div>
+                    </div>
+                    <div class="sp-hero-nav">
+                      <button class="sp-nav-arrow" onclick="spPrev()"><i class="fas fa-chevron-left"></i></button>
+                      <button class="sp-nav-arrow" onclick="spNext()"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                  </div>
+                  <div class="sp-benefit-bar">
+                    <div class="sp-benefit-icon"><i class="fas fa-rocket"></i></div>
+                    <div><div class="sp-benefit-label">Core Benefit</div>
+                    <div class="sp-benefit-text">Provide instant responses to website and social media inquiries to boost conversion.</div></div>
+                  </div>
+                </div>
+                <div class="sp-two-col">
+                  <div class="sp-card">
+                    <div class="sp-card-head"><div class="sp-card-title"><i class="fas fa-list-ul"></i> Features</div></div>
+                    <div class="sp-card-body"><div class="sp-feat-list">
+                      <div class="sp-feat"><div class="sp-feat-dot"></div><div><div class="sp-feat-label">Instant Replies</div><div class="sp-feat-desc">Responds immediately to common questions from visitors.</div></div></div>
+                      <div class="sp-feat"><div class="sp-feat-dot"></div><div><div class="sp-feat-label">Conversational Qualification</div><div class="sp-feat-desc">Qualifies leads through natural conversation rather than static forms.</div></div></div>
+                      <div class="sp-feat"><div class="sp-feat-dot"></div><div><div class="sp-feat-label">Action Execution</div><div class="sp-feat-desc">Books appointments or routes inquiries to specific team members.</div></div></div>
+                      <div class="sp-feat"><div class="sp-feat-dot"></div><div><div class="sp-feat-label">Omni-Channel Support</div><div class="sp-feat-desc">Works across Website, Messenger, and WhatsApp.</div></div></div>
+                      <div class="sp-feat"><div class="sp-feat-dot"></div><div><div class="sp-feat-label">24/7 Availability</div><div class="sp-feat-desc">Ensures no inquiry is missed regardless of time of day.</div></div></div>
+                    </div></div>
+                  </div>
+                  <div class="sp-card">
+                    <div class="sp-card-head"><div class="sp-card-title"><i class="fas fa-bullhorn"></i> Sales Pitch Points</div><span class="sp-card-hint">Click to copy</span></div>
+                    <div class="sp-card-body"><div class="sp-pitch-list">
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"Capture revenue 24/7. Your website becomes a lead generation machine that never sleeps, capturing interest even when you are offline."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"Speed wins. By responding instantly to inquiries, you drastically increase the chance of converting a visitor into a client."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"Stop answering the same repetitive questions. The AI handles the FAQs so you can focus on complex sales conversations."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"Meet your customers where they are. Whether they message on Facebook, WhatsApp, or your site, they get an instant, professional reply."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"Turn traffic into appointments. The bot doesn't just chat; it qualifies visitors and books meetings directly on your calendar."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                    </div></div>
+                  </div>
+                </div>
+              </div>
+        
+              <!-- ── WORKFLOW 4 ───────────────────────────── -->
+              <div class="sp-view" id="spView-4">
+                <div class="sp-hero">
+                  <div class="sp-hero-top">
+                    <div>
+                      <div class="sp-wf-tag"><i class="fas fa-calendar-check"></i> Workflow 4</div>
+                      <div class="sp-wf-title">Appointment Booked → AI Call Preparation</div>
+                    </div>
+                    <div class="sp-hero-nav">
+                      <button class="sp-nav-arrow" onclick="spPrev()"><i class="fas fa-chevron-left"></i></button>
+                      <button class="sp-nav-arrow" onclick="spNext()"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                  </div>
+                  <div class="sp-benefit-bar">
+                    <div class="sp-benefit-icon"><i class="fas fa-trophy"></i></div>
+                    <div><div class="sp-benefit-label">Core Benefit</div>
+                    <div class="sp-benefit-text">Dramatically increase close rates by showing up to every meeting fully prepared.</div></div>
+                  </div>
+                </div>
+                <div class="sp-two-col">
+                  <div class="sp-card">
+                    <div class="sp-card-head"><div class="sp-card-title"><i class="fas fa-list-ul"></i> Features</div></div>
+                    <div class="sp-card-body"><div class="sp-feat-list">
+                      <div class="sp-feat"><div class="sp-feat-dot"></div><div><div class="sp-feat-label">Appointment Detection</div><div class="sp-feat-desc">Automatically recognizes when a sales call is booked.</div></div></div>
+                      <div class="sp-feat"><div class="sp-feat-dot"></div><div><div class="sp-feat-label">History Retrieval</div><div class="sp-feat-desc">Pulls CRM data and past conversation history.</div></div></div>
+                      <div class="sp-feat"><div class="sp-feat-dot"></div><div><div class="sp-feat-label">AI Briefing</div><div class="sp-feat-desc">Generates a pre-call agenda, objectives, and talking points.</div></div></div>
+                      <div class="sp-feat"><div class="sp-feat-dot"></div><div><div class="sp-feat-label">Objection Handling</div><div class="sp-feat-desc">Predicts potential client objections and provides scripts.</div></div></div>
+                    </div></div>
+                  </div>
+                  <div class="sp-card">
+                    <div class="sp-card-head"><div class="sp-card-title"><i class="fas fa-bullhorn"></i> Sales Pitch Points</div><span class="sp-card-hint">Click to copy</span></div>
+                    <div class="sp-card-body"><div class="sp-pitch-list">
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"Never walk into a meeting cold again. You will have a 'cheat sheet' for every prospect delivered to you before the call."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"Impress your clients by knowing every detail of their history without having to dig through old emails."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"Confidence closes deals. This tool gives you the talking points and objection handlers you need to control the conversation."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"Standardize your sales success. Even your newest rep will prep like a seasoned pro with these AI briefings."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"It's like having a sales manager whisper the winning strategy in your ear right before you pick up the phone."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                    </div></div>
+                  </div>
+                </div>
+              </div>
+        
+              <!-- ── WORKFLOW 5 ───────────────────────────── -->
+              <div class="sp-view" id="spView-5">
+                <div class="sp-hero">
+                  <div class="sp-hero-top">
+                    <div>
+                      <div class="sp-wf-tag"><i class="fas fa-clipboard-list"></i> Workflow 5</div>
+                      <div class="sp-wf-title">Post-Call AI Recap & Follow-Up</div>
+                    </div>
+                    <div class="sp-hero-nav">
+                      <button class="sp-nav-arrow" onclick="spPrev()"><i class="fas fa-chevron-left"></i></button>
+                      <button class="sp-nav-arrow" onclick="spNext()" disabled><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                  </div>
+                  <div class="sp-benefit-bar">
+                    <div class="sp-benefit-icon"><i class="fas fa-flag-checkered"></i></div>
+                    <div><div class="sp-benefit-label">Core Benefit</div>
+                    <div class="sp-benefit-text">Capture value from every conversation and ensure strong follow-through.</div></div>
+                  </div>
+                </div>
+                <div class="sp-two-col">
+                  <div class="sp-card">
+                    <div class="sp-card-head"><div class="sp-card-title"><i class="fas fa-list-ul"></i> Features</div></div>
+                    <div class="sp-card-body"><div class="sp-feat-list">
+                      <div class="sp-feat"><div class="sp-feat-dot"></div><div><div class="sp-feat-label">Transcription</div><div class="sp-feat-desc">Records and transcribes the sales call.</div></div></div>
+                      <div class="sp-feat"><div class="sp-feat-dot"></div><div><div class="sp-feat-label">AI Summarization</div><div class="sp-feat-desc">Extracts key decisions, action items, and next steps.</div></div></div>
+                      <div class="sp-feat"><div class="sp-feat-dot"></div><div><div class="sp-feat-label">Drafted Follow-Up</div><div class="sp-feat-desc">Writes a personalized follow-up email to the client.</div></div></div>
+                      <div class="sp-feat"><div class="sp-feat-dot"></div><div><div class="sp-feat-label">CRM Updates</div><div class="sp-feat-desc">Automatically logs notes and tasks in the CRM.</div></div></div>
+                      <div class="sp-feat"><div class="sp-feat-dot"></div><div><div class="sp-feat-label">Deal Tracking</div><div class="sp-feat-desc">Ensures momentum isn't lost if the deal doesn't close immediately.</div></div></div>
+                    </div></div>
+                  </div>
+                  <div class="sp-card">
+                    <div class="sp-card-head"><div class="sp-card-title"><i class="fas fa-bullhorn"></i> Sales Pitch Points</div><span class="sp-card-hint">Click to copy</span></div>
+                    <div class="sp-card-body"><div class="sp-pitch-list">
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"The fortune is in the follow-up. This system ensures you send a perfect summary email minutes after hanging up."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"Stop spending your Friday afternoon updating your CRM. The AI logs every call and note for you automatically."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"Make your clients feel heard. Sending a detailed summary of your conversation proves you were listening and care about their needs."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"Eliminate the 'What did we agree on?' confusion. You and the client get a clear record of next steps every single time."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                      <div class="sp-pitch" onclick="spCopyPitch(this)">"This closes the loop on your sales process, ensuring that the momentum you built on the call translates into signed deals."<div class="sp-copy-badge"><i class="fas fa-copy"></i></div></div>
+                    </div></div>
+                  </div>
+                </div>
+              </div>
+        
+            </div><!-- /sp-scroll -->
+          </div><!-- /sp-main -->
+        
+          <!-- Toast -->
+          <div class="sp-toast" id="spToast"><i class="fas fa-check-circle"></i> <span id="spToastMsg">Copied!</span></div>
+        
+        </div><!-- /#salesPitchWorkflows -->
+        
+        <script>
+        (function() {
+          const ORDER = ['1','2','2a','2b','3','3a','3b','4','5'];
+          let spCurrent = '1';
+          let spRailCollapsed = false;
+        
+          window.spShow = function(id) {
+            document.querySelectorAll('.sp-view').forEach(v => v.classList.remove('active'));
+            const view = document.getElementById('spView-' + id);
+            if (view) { view.classList.remove('active'); void view.offsetWidth; view.classList.add('active'); }
+        
+            document.querySelectorAll('.sp-nav-item').forEach(n => n.classList.remove('active'));
+            const nav = document.getElementById('spNav-' + id);
+            if (nav) nav.classList.add('active');
+        
+            document.querySelectorAll('.sp-step').forEach(s => s.classList.remove('active'));
+            const step = document.querySelector('.sp-step[data-id="' + id + '"]');
+            if (step) { step.classList.add('active'); step.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'}); }
+        
+            spCurrent = id;
+            document.getElementById('spScroll').scrollTo({top:0,behavior:'smooth'});
+          };
+        
+          window.spNext = function() {
+            const i = ORDER.indexOf(spCurrent);
+            if (i < ORDER.length - 1) spShow(ORDER[i + 1]);
+          };
+          window.spPrev = function() {
+            const i = ORDER.indexOf(spCurrent);
+            if (i > 0) spShow(ORDER[i - 1]);
+          };
+        
+          window.spToggleRail = function() {
+            spRailCollapsed = !spRailCollapsed;
+            document.getElementById('spRail').classList.toggle('sp-rail--collapsed', spRailCollapsed);
+          };
+        
+          function spToast(msg) {
+            const t = document.getElementById('spToast');
+            document.getElementById('spToastMsg').textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2000);
+          }
+        
+          window.spCopyPitch = function(el) {
+            const text = el.childNodes[0].textContent.trim();
+            navigator.clipboard.writeText(text).then(() => {
+              el.classList.add('sp-copied');
+              spToast('Pitch point copied!');
+              setTimeout(() => el.classList.remove('sp-copied'), 1400);
+            });
+          };
+        
+          window.spCopyAll = function() {
+            let out = 'AI Business OS — Sales Pitch v2\n\n';
+            ORDER.forEach(id => {
+              const v = document.getElementById('spView-' + id);
+              if (!v) return;
+              out += (v.querySelector('.sp-wf-title')?.innerText || '') + '\n';
+              out += 'Benefit: ' + (v.querySelector('.sp-benefit-text')?.innerText || '') + '\n\nPitch Points:\n';
+              v.querySelectorAll('.sp-pitch').forEach(p => {
+                out += p.childNodes[0].textContent.trim() + '\n';
+              });
+              out += '\n---\n\n';
+            });
+            navigator.clipboard.writeText(out).then(() => spToast('All workflows copied!'));
+          };
+        
+          // Keyboard navigation (scoped to component focus)
+          document.addEventListener('keydown', function(e) {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            if (e.key === 'ArrowRight') spNext();
+            if (e.key === 'ArrowLeft') spPrev();
+          });
+        })();
+        </script>

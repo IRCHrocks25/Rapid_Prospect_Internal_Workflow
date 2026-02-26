@@ -1,0 +1,1005 @@
+{% extends 'base.html' %}
+
+{% block title %}AI Business OS — Sales Pitch v2{% endblock %}
+
+{% block navigation %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_head %}
+<style>
+  :root {
+    --bg: #f0f2f7;
+    --panel: #ffffff;
+    --text: #0f172a;
+    --muted: #64748b;
+    --border: rgba(15,23,42,0.10);
+    --accent: #0ea5e9;
+    --accent-2: #22c55e;
+    --accent-3: #f59e0b;
+    --radius-lg: 18px;
+    --radius-md: 12px;
+    --radius-sm: 8px;
+    --shadow: 0 1px 3px rgba(15,23,42,0.08);
+    --shadow-lg: 0 12px 40px rgba(15,23,42,0.13);
+  }
+  
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',-apple-system,sans-serif;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg);color:var(--text);min-height:100vh;}
+  
+  /* ── LAYOUT ─────────────────────────────────────── */
+  .app{display:flex;height:100vh;overflow:hidden;}
+  
+  /* ── LEFT SIDEBAR ────────────────────────────────── */
+  .sidebar{
+    width:280px;min-width:280px;
+    background:var(--panel);
+    border-right:1px solid var(--border);
+    display:flex;flex-direction:column;
+    overflow:hidden;
+    box-shadow:2px 0 12px rgba(15,23,42,0.05);
+    z-index:10;
+    transition:width 0.3s ease,min-width 0.3s ease;
+  }
+  .sidebar.collapsed{width:72px;min-width:72px;}
+  
+  .sidebar-header{
+    padding:20px 18px 16px;
+    border-bottom:1px solid var(--border);
+    display:flex;align-items:center;justify-content:space-between;
+    flex-shrink:0;
+  }
+  .sidebar-logo{display:flex;align-items:center;gap:10px;overflow:hidden;}
+  .sidebar-logo img{height:32px;min-width:32px;object-fit:contain;}
+  .sidebar-logo-text{font-size:0.8rem;font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;}
+  .sidebar.collapsed .sidebar-logo-text{display:none;}
+  
+  .collapse-btn{
+    width:28px;height:28px;border-radius:8px;border:1px solid var(--border);
+    background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;
+    color:var(--muted);transition:all 0.15s ease;flex-shrink:0;
+  }
+  .collapse-btn:hover{background:rgba(14,165,233,0.1);color:var(--accent);border-color:rgba(14,165,233,0.3);}
+  
+  .sidebar-search{
+    padding:12px 14px;border-bottom:1px solid var(--border);flex-shrink:0;
+  }
+  .sidebar.collapsed .sidebar-search{display:none;}
+  .search-input-wrap{position:relative;}
+  .search-input{
+    width:100%;padding:8px 10px 8px 32px;
+    border:1px solid var(--border);border-radius:var(--radius-sm);
+    background:var(--bg);font-size:0.825rem;color:var(--text);
+    outline:none;transition:border-color 0.15s;
+  }
+  .search-input:focus{border-color:rgba(14,165,233,0.5);}
+  .search-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:0.75rem;}
+  
+  .sidebar-nav{flex:1;overflow-y:auto;padding:10px 8px;}
+  .nav-group-label{
+    font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;
+    color:var(--muted);padding:8px 10px 4px;
+  }
+  .sidebar.collapsed .nav-group-label{display:none;}
+  
+  .nav-item{
+    display:flex;align-items:center;gap:10px;
+    padding:10px 10px;border-radius:var(--radius-sm);
+    cursor:pointer;transition:all 0.15s ease;
+    color:rgba(15,23,42,0.7);font-size:0.85rem;font-weight:500;
+    margin-bottom:2px;position:relative;text-decoration:none;
+    border:1px solid transparent;
+  }
+  .nav-item:hover{background:rgba(14,165,233,0.07);color:var(--accent);}
+  .nav-item.active{
+    background:rgba(14,165,233,0.1);color:var(--accent);
+    border-color:rgba(14,165,233,0.2);font-weight:700;
+  }
+  .nav-item-icon{
+    width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+    font-size:0.8rem;flex-shrink:0;
+    background:rgba(15,23,42,0.04);color:var(--muted);
+    transition:all 0.15s ease;
+  }
+  .nav-item.active .nav-item-icon,.nav-item:hover .nav-item-icon{
+    background:rgba(14,165,233,0.15);color:var(--accent);
+  }
+  .nav-item-text{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .sidebar.collapsed .nav-item-text{display:none;}
+  .nav-badge{
+    margin-left:auto;font-size:0.68rem;font-weight:700;
+    padding:2px 6px;border-radius:20px;background:rgba(14,165,233,0.12);color:var(--accent);
+    flex-shrink:0;
+  }
+  .sidebar.collapsed .nav-badge{display:none;}
+  
+  .sidebar-footer{
+    padding:14px;border-top:1px solid var(--border);
+    display:flex;gap:8px;flex-shrink:0;
+  }
+  .sidebar.collapsed .sidebar-footer{flex-direction:column;}
+  .footer-btn{
+    flex:1;padding:8px;border-radius:var(--radius-sm);border:1px solid var(--border);
+    background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;
+    font-size:0.8rem;font-weight:600;color:var(--muted);transition:all 0.15s ease;
+  }
+  .footer-btn:hover{background:rgba(15,23,42,0.04);color:var(--text);}
+  .footer-btn.primary{background:var(--accent);color:white;border-color:var(--accent);}
+  .footer-btn.primary:hover{background:#0284c7;}
+  .sidebar.collapsed .footer-btn span{display:none;}
+  
+  /* ── MAIN CONTENT ─────────────────────────────────── */
+  .main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+  
+  .topbar{
+    background:rgba(240,242,247,0.95);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border);
+    padding:14px 28px;display:flex;align-items:center;justify-content:space-between;
+    flex-shrink:0;z-index:5;
+  }
+  .topbar-left{display:flex;flex-direction:column;gap:2px;}
+  .topbar-title{font-size:1.1rem;font-weight:900;letter-spacing:-0.3px;}
+  .topbar-sub{font-size:0.82rem;color:var(--muted);}
+  .topbar-actions{display:flex;gap:8px;}
+  .action-btn{
+    padding:8px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);
+    background:var(--panel);font-size:0.82rem;font-weight:700;color:rgba(15,23,42,0.8);
+    cursor:pointer;display:flex;align-items:center;gap:6px;transition:all 0.15s ease;
+    box-shadow:var(--shadow);
+  }
+  .action-btn:hover{background:rgba(15,23,42,0.02);box-shadow:0 4px 12px rgba(15,23,42,0.1);transform:translateY(-1px);}
+  .action-btn.accent{background:var(--accent);color:white;border-color:var(--accent);}
+  .action-btn.accent:hover{background:#0284c7;}
+  .action-btn.success{background:rgba(34,197,94,0.1);color:#16a34a;border-color:rgba(34,197,94,0.3);}
+  
+  /* Progress bar */
+  .progress-bar-wrap{
+    background:var(--panel);border-bottom:1px solid var(--border);
+    padding:0 28px;flex-shrink:0;
+  }
+  .progress-bar{
+    display:flex;gap:0;
+    overflow-x:auto;
+  }
+  .progress-step{
+    display:flex;align-items:center;gap:8px;padding:12px 16px;
+    cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s ease;
+    white-space:nowrap;font-size:0.8rem;font-weight:600;color:var(--muted);
+    flex-shrink:0;
+  }
+  .progress-step:hover{color:var(--text);}
+  .progress-step.active{color:var(--accent);border-bottom-color:var(--accent);}
+  .progress-step.done{color:var(--accent-2);}
+  .step-num{
+    width:20px;height:20px;border-radius:50%;
+    background:rgba(15,23,42,0.07);display:flex;align-items:center;justify-content:center;
+    font-size:0.7rem;font-weight:800;color:var(--muted);flex-shrink:0;
+  }
+  .progress-step.active .step-num{background:var(--accent);color:white;}
+  .progress-step.done .step-num{background:var(--accent-2);color:white;}
+  
+  /* ── WORKFLOW VIEW ─────────────────────────────────── */
+  .content-area{flex:1;overflow-y:auto;padding:24px 28px;}
+  
+  .workflow-view{display:none;}
+  .workflow-view.active{display:block;}
+  
+  /* Hero section */
+  .workflow-hero{
+    background:var(--panel);border-radius:var(--radius-lg);border:1px solid var(--border);
+    overflow:hidden;margin-bottom:16px;box-shadow:var(--shadow);
+  }
+  .workflow-hero-top{
+    background:linear-gradient(135deg,rgba(14,165,233,0.08) 0%,rgba(14,165,233,0.02) 100%);
+    padding:24px 28px;border-bottom:1px solid var(--border);
+    display:flex;align-items:flex-start;justify-content:space-between;gap:16px;
+  }
+  .workflow-hero-left{flex:1;}
+  .workflow-number{
+    display:inline-flex;align-items:center;gap:6px;
+    background:rgba(14,165,233,0.12);color:var(--accent);
+    font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;
+    padding:4px 10px;border-radius:20px;margin-bottom:10px;border:1px solid rgba(14,165,233,0.2);
+  }
+  .workflow-hero-title{font-size:1.35rem;font-weight:900;letter-spacing:-0.4px;line-height:1.3;margin-bottom:0;}
+  .workflow-hero-right{flex-shrink:0;}
+  .workflow-nav-btns{display:flex;gap:8px;}
+  .wf-nav-btn{
+    width:36px;height:36px;border-radius:10px;border:1px solid var(--border);
+    background:var(--panel);cursor:pointer;display:flex;align-items:center;justify-content:center;
+    color:var(--muted);font-size:0.85rem;transition:all 0.15s ease;
+  }
+  .wf-nav-btn:hover{background:var(--accent);color:white;border-color:var(--accent);}
+  .wf-nav-btn:disabled{opacity:0.35;cursor:default;}
+  .wf-nav-btn:disabled:hover{background:var(--panel);color:var(--muted);border-color:var(--border);}
+  
+  .workflow-benefit-bar{
+    padding:16px 28px;display:flex;align-items:center;gap:12px;
+  }
+  .benefit-icon{
+    width:40px;height:40px;border-radius:12px;
+    background:linear-gradient(135deg,rgba(14,165,233,0.15),rgba(14,165,233,0.05));
+    display:flex;align-items:center;justify-content:center;
+    color:var(--accent);font-size:1rem;flex-shrink:0;border:1px solid rgba(14,165,233,0.2);
+  }
+  .benefit-content{}
+  .benefit-label{font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:var(--accent);margin-bottom:3px;}
+  .benefit-text{font-size:0.95rem;font-weight:600;color:rgba(15,23,42,0.9);line-height:1.5;}
+  
+  /* Two-column layout */
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+  @media(max-width:900px){.two-col{grid-template-columns:1fr;}}
+  
+  .panel-card{
+    background:var(--panel);border-radius:var(--radius-lg);border:1px solid var(--border);
+    overflow:hidden;box-shadow:var(--shadow);
+  }
+  .panel-card-header{
+    padding:14px 20px;border-bottom:1px solid var(--border);
+    display:flex;align-items:center;justify-content:space-between;
+    background:rgba(15,23,42,0.01);
+  }
+  .panel-card-title{font-size:0.82rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);display:flex;align-items:center;gap:8px;}
+  .panel-card-title i{color:var(--accent);}
+  .panel-card-body{padding:16px;}
+  
+  /* Features */
+  .feature-grid{display:flex;flex-direction:column;gap:8px;}
+  .feat{
+    padding:11px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);
+    background:rgba(15,23,42,0.015);transition:all 0.15s ease;
+    display:flex;align-items:flex-start;gap:10px;cursor:default;
+  }
+  .feat:hover{border-color:rgba(14,165,233,0.25);background:rgba(14,165,233,0.04);transform:translateX(3px);}
+  .feat-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);margin-top:5px;flex-shrink:0;}
+  .feat-label{font-weight:700;color:var(--text);font-size:0.85rem;margin-bottom:2px;}
+  .feat-desc{color:var(--muted);font-size:0.8rem;line-height:1.45;}
+  
+  /* Pitch points */
+  .pitch-list{display:flex;flex-direction:column;gap:10px;}
+  .pitch-item{
+    padding:13px 16px;border-radius:var(--radius-sm);
+    background:rgba(14,165,233,0.05);border:1px solid rgba(14,165,233,0.15);
+    border-left:3px solid var(--accent);
+    font-size:0.9rem;font-weight:600;color:rgba(15,23,42,0.9);line-height:1.65;
+    cursor:pointer;transition:all 0.15s ease;position:relative;
+  }
+  .pitch-item:hover{background:rgba(14,165,233,0.09);transform:translateX(4px);}
+  .pitch-item-copy{
+    position:absolute;right:10px;top:50%;transform:translateY(-50%);
+    width:26px;height:26px;border-radius:6px;border:1px solid rgba(14,165,233,0.25);
+    background:var(--panel);display:flex;align-items:center;justify-content:center;
+    font-size:0.7rem;color:var(--accent);opacity:0;transition:opacity 0.15s ease;cursor:pointer;
+  }
+  .pitch-item:hover .pitch-item-copy{opacity:1;}
+  
+  /* Quick copy tip */
+  .tip-bar{
+    background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.2);
+    border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:16px;
+    font-size:0.8rem;color:rgba(120,80,0,0.85);display:flex;align-items:center;gap:8px;
+    font-weight:500;
+  }
+  .tip-bar i{color:var(--accent-3);}
+  .tip-bar.hidden-tip{display:none;}
+  
+  /* Keyboard shortcut badges */
+  .kbd{
+    display:inline-flex;align-items:center;justify-content:center;
+    padding:2px 6px;border-radius:4px;background:rgba(15,23,42,0.08);
+    font-size:0.7rem;font-weight:700;color:var(--muted);border:1px solid rgba(15,23,42,0.12);
+    font-family:monospace;
+  }
+  
+  /* Toast notification */
+  .toast{
+    position:fixed;bottom:24px;right:24px;z-index:999;
+    background:var(--text);color:white;
+    padding:12px 18px;border-radius:var(--radius-md);
+    font-size:0.85rem;font-weight:600;
+    box-shadow:0 8px 32px rgba(15,23,42,0.25);
+    display:flex;align-items:center;gap:10px;
+    transform:translateY(80px);opacity:0;
+    transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    pointer-events:none;
+  }
+  .toast.show{transform:translateY(0);opacity:1;}
+  .toast i{color:var(--accent-2);}
+  
+  /* Empty state */
+  .empty-state{
+    text-align:center;padding:60px 40px;color:var(--muted);
+  }
+  .empty-state i{font-size:2.5rem;margin-bottom:16px;color:rgba(14,165,233,0.3);}
+  .empty-state h3{font-size:1rem;font-weight:700;margin-bottom:6px;color:var(--text);}
+  .empty-state p{font-size:0.85rem;}
+  
+  /* Scrollbar */
+  ::-webkit-scrollbar{width:5px;height:5px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:rgba(15,23,42,0.12);border-radius:10px;}
+  ::-webkit-scrollbar-thumb:hover{background:rgba(15,23,42,0.2);}
+  
+  /* Animations */
+  @keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+  .workflow-view.active .workflow-hero{animation:fadeUp 0.25s ease both;}
+  .workflow-view.active .two-col{animation:fadeUp 0.3s 0.05s ease both;}
+  .workflow-view.active .tip-bar{animation:fadeUp 0.2s ease both;}
+  
+  /* Print */
+  @media print{
+    .sidebar,.topbar,.progress-bar-wrap,.topbar-actions,.workflow-nav-btns,.tip-bar{display:none!important;}
+    .main{overflow:visible;}
+    .content-area{overflow:visible;}
+    .workflow-view{display:block!important;}
+    .app{height:auto;}
+  }
+  </style>
+{% endblock %}
+
+{% block content_wrapper %}
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <img src="https://res.cloudinary.com/dcuswyfur/image/upload/v1772104053/rapidprospect_r6orxo.png" alt="RapidProspect">
+      </div>
+      <button class="collapse-btn" onclick="toggleSidebar()" title="Collapse sidebar">
+        <i class="fas fa-bars" id="collapseIcon"></i>
+      </button>
+    </div>
+
+    <div class="sidebar-search">
+      <div class="search-input-wrap">
+        <i class="fas fa-search search-icon"></i>
+        <input class="search-input" type="text" placeholder="Search workflows…" id="searchInput" oninput="filterNav(this.value)">
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-group-label">All Workflows</div>
+
+      <a class="nav-item active" onclick="showWorkflow('1')" id="nav-1">
+        <div class="nav-item-icon"><i class="fas fa-envelope"></i></div>
+        <span class="nav-item-text">Email Monitoring</span>
+        <span class="nav-badge">5</span>
+      </a>
+      <a class="nav-item" onclick="showWorkflow('2')" id="nav-2">
+        <div class="nav-item-icon"><i class="fas fa-pen-nib"></i></div>
+        <span class="nav-item-text">Content Engine</span>
+        <span class="nav-badge">5</span>
+      </a>
+      <a class="nav-item" onclick="showWorkflow('2a')" id="nav-2a">
+        <div class="nav-item-icon"><i class="fas fa-hashtag"></i></div>
+        <span class="nav-item-text">Social Media</span>
+        <span class="nav-badge">5</span>
+      </a>
+      <a class="nav-item" onclick="showWorkflow('2b')" id="nav-2b">
+        <div class="nav-item-icon"><i class="fas fa-ad"></i></div>
+        <span class="nav-item-text">Automated Ads</span>
+        <span class="nav-badge">5</span>
+      </a>
+      <a class="nav-item" onclick="showWorkflow('3')" id="nav-3">
+        <div class="nav-item-icon"><i class="fas fa-user-plus"></i></div>
+        <span class="nav-item-text">Lead Intake & CRM</span>
+        <span class="nav-badge">5</span>
+      </a>
+      <a class="nav-item" onclick="showWorkflow('3a')" id="nav-3a">
+        <div class="nav-item-icon"><i class="fas fa-phone-alt"></i></div>
+        <span class="nav-item-text">Voice AI</span>
+        <span class="nav-badge">5</span>
+      </a>
+      <a class="nav-item" onclick="showWorkflow('3b')" id="nav-3b">
+        <div class="nav-item-icon"><i class="fas fa-comment-dots"></i></div>
+        <span class="nav-item-text">Chatbot</span>
+        <span class="nav-badge">5</span>
+      </a>
+      <a class="nav-item" onclick="showWorkflow('4')" id="nav-4">
+        <div class="nav-item-icon"><i class="fas fa-calendar-check"></i></div>
+        <span class="nav-item-text">Call Preparation</span>
+        <span class="nav-badge">5</span>
+      </a>
+      <a class="nav-item" onclick="showWorkflow('5')" id="nav-5">
+        <div class="nav-item-icon"><i class="fas fa-clipboard-list"></i></div>
+        <span class="nav-item-text">Post-Call Recap</span>
+        <span class="nav-badge">5</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="footer-btn" onclick="copyAll()"><i class="fas fa-copy"></i><span>Copy All</span></button>
+      <button class="footer-btn" onclick="window.print()"><i class="fas fa-print"></i><span>Print</span></button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-title" id="topbarTitle">Workflow 1: AI Email Monitoring</div>
+        <div class="topbar-sub">Benefit-first · Features second · Close with proof</div>
+      </div>
+      <div class="topbar-actions">
+        <button class="action-btn" onclick="copyCurrentPitch()"><i class="fas fa-copy"></i> Copy Pitch</button>
+        <button class="action-btn" onclick="prevWorkflow()"><i class="fas fa-arrow-left"></i></button>
+        <button class="action-btn" onclick="nextWorkflow()"><i class="fas fa-arrow-right"></i></button>
+        <button class="action-btn accent" id="focusBtn" onclick="toggleFocus()"><i class="fas fa-expand-arrows-alt"></i> Focus</button>
+      </div>
+    </div>
+
+    <!-- Breadcrumb progress strip -->
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="progressBar">
+        <div class="progress-step active" onclick="showWorkflow('1')" data-wf="1"><div class="step-num">1</div>Email</div>
+        <div class="progress-step" onclick="showWorkflow('2')" data-wf="2"><div class="step-num">2</div>Content</div>
+        <div class="progress-step" onclick="showWorkflow('2a')" data-wf="2a"><div class="step-num">2A</div>Social</div>
+        <div class="progress-step" onclick="showWorkflow('2b')" data-wf="2b"><div class="step-num">2B</div>Ads</div>
+        <div class="progress-step" onclick="showWorkflow('3')" data-wf="3"><div class="step-num">3</div>CRM</div>
+        <div class="progress-step" onclick="showWorkflow('3a')" data-wf="3a"><div class="step-num">3A</div>Voice AI</div>
+        <div class="progress-step" onclick="showWorkflow('3b')" data-wf="3b"><div class="step-num">3B</div>Chatbot</div>
+        <div class="progress-step" onclick="showWorkflow('4')" data-wf="4"><div class="step-num">4</div>Prep</div>
+        <div class="progress-step" onclick="showWorkflow('5')" data-wf="5"><div class="step-num">5</div>Recap</div>
+      </div>
+    </div>
+
+    <div class="content-area" id="contentArea">
+
+      
+
+      <!-- ─── WORKFLOW 1 ─────────────────────── -->
+      <div class="workflow-view active" id="wf-1">
+        <div class="workflow-hero">
+          <div class="workflow-hero-top">
+            <div class="workflow-hero-left">
+              <div class="workflow-number"><i class="fas fa-envelope"></i> Workflow 1</div>
+              <h1 class="workflow-hero-title">AI Email Monitoring & Drafted Responses</h1>
+            </div>
+            <div class="workflow-hero-right">
+              <div class="workflow-nav-btns">
+                <button class="wf-nav-btn" onclick="prevWorkflow()" disabled id="prevBtn-1" title="Previous"><i class="fas fa-chevron-left"></i></button>
+                <button class="wf-nav-btn" onclick="nextWorkflow()" title="Next"><i class="fas fa-chevron-right"></i></button>
+              </div>
+            </div>
+          </div>
+          <div class="workflow-benefit-bar">
+            <div class="benefit-icon"><i class="fas fa-bolt"></i></div>
+            <div class="benefit-content">
+              <div class="benefit-label">Core Benefit</div>
+              <div class="benefit-text">Reclaim 1–2 hours daily by eliminating inbox overload and decision fatigue.</div>
+            </div>
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="panel-card">
+            <div class="panel-card-header">
+              <div class="panel-card-title"><i class="fas fa-list-ul"></i> Features</div>
+            </div>
+            <div class="panel-card-body">
+              <div class="feature-grid">
+                <div class="feat"><div class="feat-dot"></div><div><div class="feat-label">Real-Time Monitoring</div><div class="feat-desc">Connects to Gmail or Outlook to read incoming mail.</div></div></div>
+                <div class="feat"><div class="feat-dot"></div><div><div class="feat-label">AI Classification</div><div class="feat-desc">Filters emails by priority and determines if a response is required.</div></div></div>
+                <div class="feat"><div class="feat-dot"></div><div><div class="feat-label">Smart Drafting</div><div class="feat-desc">Generates professional replies in the client's specific brand voice.</div></div></div>
+                <div class="feat"><div class="feat-dot"></div><div><div class="feat-label">Human Control</div><div class="feat-desc">Saves drafts for final review — nothing sends without approval.</div></div></div>
+                <div class="feat"><div class="feat-dot"></div><div><div class="feat-label">Priority Tagging</div><div class="feat-desc">Alerts users to urgent messages so nothing gets lost.</div></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-card">
+            <div class="panel-card-header">
+              <div class="panel-card-title"><i class="fas fa-bullhorn"></i> Sales Pitch Points</div>
+              <span style="font-size:0.72rem;color:var(--muted);font-weight:500;">Click to copy</span>
+            </div>
+            <div class="panel-card-body">
+              <div class="pitch-list">
+                <div class="pitch-item" onclick="copyPitch(this)">"Imagine having a personal executive assistant who reads every email and writes 90% of the response for you—for a fraction of the cost."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+                <div class="pitch-item" onclick="copyPitch(this)">"Stop starting from a blank page. Our AI drafts the reply so you just have to click 'Send'."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+                <div class="pitch-item" onclick="copyPitch(this)">"Eliminate 'Inbox Anxiety.' You'll never have to wonder if you missed an urgent client request again."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+                <div class="pitch-item" onclick="copyPitch(this)">"This system saves you up to 10 hours a week—that is an entire workday given back to you every single week."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+                <div class="pitch-item" onclick="copyPitch(this)">"It doesn't rob you of control; it gives you options. You always have the final say, but the heavy lifting is done for you."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── WORKFLOW 2 ─────────────────────── -->
+      <div class="workflow-view" id="wf-2">
+        <div class="workflow-hero">
+          <div class="workflow-hero-top">
+            <div class="workflow-hero-left">
+              <div class="workflow-number"><i class="fas fa-pen-nib"></i> Workflow 2</div>
+              <h1 class="workflow-hero-title">Idea → Ready-to-Post Content Engine</h1>
+            </div>
+            <div class="workflow-hero-right"><div class="workflow-nav-btns">
+              <button class="wf-nav-btn" onclick="prevWorkflow()"><i class="fas fa-chevron-left"></i></button>
+              <button class="wf-nav-btn" onclick="nextWorkflow()"><i class="fas fa-chevron-right"></i></button>
+            </div></div>
+          </div>
+          <div class="workflow-benefit-bar">
+            <div class="benefit-icon"><i class="fas fa-magic"></i></div>
+            <div class="benefit-content">
+              <div class="benefit-label">Core Benefit</div>
+              <div class="benefit-text">Remove content paralysis by turning raw ideas into consistent social media output.</div>
+            </div>
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="panel-card">
+            <div class="panel-card-header"><div class="panel-card-title"><i class="fas fa-list-ul"></i> Features</div></div>
+            <div class="panel-card-body"><div class="feature-grid">
+              <div class="feat"><div class="feat-dot"></div><div><div class="feat-label">Multi-Format Capture</div><div class="feat-desc">Accepts text input, forms, or voice notes.</div></div></div>
+              <div class="feat"><div class="feat-dot"></div><div><div class="feat-label">AI Content Generation</div><div class="feat-desc">Converts one idea into captions and posts for multiple platforms.</div></div></div>
+              <div class="feat"><div class="feat-dot"></div><div><div class="feat-label">Platform Optimization</div><div class="feat-desc">Automatically formats content for Instagram, Facebook, and LinkedIn.</div></div></div>
+              <div class="feat"><div class="feat-dot"></div><div><div class="feat-label">Auto-Scheduling</div><div class="feat-desc">Queues and publishes content based on optimal timing.</div></div></div>
+              <div class="feat"><div class="feat-dot"></div><div><div class="feat-label">Brand Voice Alignment</div><div class="feat-desc">Ensures every post sounds exactly like the client.</div></div></div>
+            </div></div>
+          </div>
+          <div class="panel-card">
+            <div class="panel-card-header"><div class="panel-card-title"><i class="fas fa-bullhorn"></i> Sales Pitch Points</div><span style="font-size:0.72rem;color:var(--muted);font-weight:500;">Click to copy</span></div>
+            <div class="panel-card-body"><div class="pitch-list">
+              <div class="pitch-item" onclick="copyPitch(this)">"Turn your commute into your marketing department. Just speak a thought into your phone, and the system turns it into a week's worth of posts."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+              <div class="pitch-item" onclick="copyPitch(this)">"Consistency builds trust, but it's hard to maintain. This tool ensures you show up on social media every day, even when you're on vacation."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+              <div class="pitch-item" onclick="copyPitch(this)">"Stop struggling with 'Writer's Block.' One raw idea becomes 3 to 5 pieces of polished content automatically."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+              <div class="pitch-item" onclick="copyPitch(this)">"You don't need to be a social media expert to look like one. The AI handles the hashtags, formatting, and scheduling for you."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+              <div class="pitch-item" onclick="copyPitch(this)">"Get the visibility of a full marketing team without the overhead costs."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+            </div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── WORKFLOW 2A ─────────────────────── -->
+      <div class="workflow-view" id="wf-2a">
+        <div class="workflow-hero">
+          <div class="workflow-hero-top">
+            <div class="workflow-hero-left">
+              <div class="workflow-number"><i class="fas fa-hashtag"></i> Workflow 2A</div>
+              <h1 class="workflow-hero-title">Automated Social Media (Maintenance)</h1>
+            </div>
+            <div class="workflow-hero-right"><div class="workflow-nav-btns">
+              <button class="wf-nav-btn" onclick="prevWorkflow()"><i class="fas fa-chevron-left"></i></button>
+              <button class="wf-nav-btn" onclick="nextWorkflow()"><i class="fas fa-chevron-right"></i></button>
+            </div></div>
+          </div>
+          <div class="workflow-benefit-bar">
+            <div class="benefit-icon"><i class="fas fa-shield-alt"></i></div>
+            <div class="benefit-content">
+              <div class="benefit-label">Core Benefit</div>
+              <div class="benefit-text">Maintain a consistent, professional online presence without daily effort.</div>
+            </div>
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="panel-card">
+            <div class="panel-card-header"><div class="panel-card-title"><i class="fas fa-list-ul"></i> Features</div></div>
+            <div class="panel-card-body"><div class="feature-grid">
+              <div class="feat"><div class="feat-dot"></div><div><div class="feat-label">Voice-to-Post</div><div class="feat-desc">Turns raw voice messages into polished content.</div></div></div>
+              <div class="feat"><div class="feat-dot"></div><div><div class="feat-label">Cross-Platform Generation</div><div class="feat-desc">Creates posts for Instagram, Facebook, and LinkedIn simultaneously.</div></div></div>
+              <div class="feat"><div class="feat-dot"></div><div><div class="feat-label">Automated Scheduling</div><div class="feat-desc">Handles the calendar and posting times automatically.</div></div></div>
+              <div class="feat"><div class="feat-dot"></div><div><div class="feat-label">Brand Consistency</div><div class="feat-desc">Maintains specific messaging and tone across all channels.</div></div></div>
+            </div></div>
+          </div>
+          <div class="panel-card">
+            <div class="panel-card-header"><div class="panel-card-title"><i class="fas fa-bullhorn"></i> Sales Pitch Points</div><span style="font-size:0.72rem;color:var(--muted);font-weight:500;">Click to copy</span></div>
+            <div class="panel-card-body"><div class="pitch-list">
+              <div class="pitch-item" onclick="copyPitch(this)">"This is your baseline insurance policy for visibility—you will never 'go dark' on social media again."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+              <div class="pitch-item" onclick="copyPitch(this)">"Free yourself from the daily grind of logging in to post. The system handles the logistics so you can focus on your business."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+              <div class="pitch-item" onclick="copyPitch(this)">"Expand your reach instantly. We take one piece of content and format it perfectly for every major platform."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+              <div class="pitch-item" onclick="copyPitch(this)">"Your brand voice remains consistent 100% of the time, ensuring your audience always recognizes you."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+              <div class="pitch-item" onclick="copyPitch(this)">"It's not just about posting; it's about freeing up your mental bandwidth for high-revenue activities."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+            </div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── WORKFLOW 2B ─────────────────────── -->
+      <div class="workflow-view" id="wf-2b">
+        <div class="workflow-hero">
+          <div class="workflow-hero-top">
+            <div class="workflow-hero-left">
+              <div class="workflow-number"><i class="fas fa-ad"></i> Workflow 2B</div>
+              <h1 class="workflow-hero-title">Automated Ads (Paid Media)</h1>
+            </div>
+            <div class="workflow-hero-right"><div class="workflow-nav-btns">
+              <button class="wf-nav-btn" onclick="prevWorkflow()"><i class="fas fa-chevron-left"></i></button>
+              <button class="wf-nav-btn" onclick="nextWorkflow()"><i class="fas fa-chevron-right"></i></button>
+            </div></div>
+          </div>
+          <div class="workflow-benefit-bar">
+            <div class="benefit-icon"><i class="fas fa-chart-line"></i></div>
+            <div class="benefit-content">
+              <div class="benefit-label">Core Benefit</div>
+              <div class="benefit-text">Launch and improve high-converting ad campaigns without constant manual tweaking.</div>
+            </div>
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="panel-card">
+            <div class="panel-card-header"><div class="panel-card-title"><i class="fas fa-list-ul"></i> Features</div></div>
+            <div class="panel-card-body"><div class="feature-grid">
+              <div class="feat"><div class="feat-dot"></div><div><div class="feat-label">Auto-Copywriting</div><div class="feat-desc">Generates ad copy and headlines automatically.</div></div></div>
+              <div class="feat"><div class="feat-dot"></div><div><div class="feat-label">Variation Testing</div><div class="feat-desc">Creates multiple variations to test what works best.</div></div></div>
+              <div class="feat"><div class="feat-dot"></div><div><div class="feat-label">Data Optimization</div><div class="feat-desc">Refines messaging based on performance data.</div></div></div>
+              <div class="feat"><div class="feat-dot"></div><div><div class="feat-label">Multi-Platform Support</div><div class="feat-desc">Supports Meta (Facebook/Instagram) and Google ad platforms.</div></div></div>
+            </div></div>
+          </div>
+          <div class="panel-card">
+            <div class="panel-card-header"><div class="panel-card-title"><i class="fas fa-bullhorn"></i> Sales Pitch Points</div><span style="font-size:0.72rem;color:var(--muted);font-weight:500;">Click to copy</span></div>
+            <div class="panel-card-body"><div class="pitch-list">
+              <div class="pitch-item" onclick="copyPitch(this)">"Stop burning budget on bad ads. The AI creates multiple variations to find the winner faster than a human could."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+              <div class="pitch-item" onclick="copyPitch(this)">"You don't need to hire an expensive agency to run effective ads. This system handles the creative heavy lifting."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+              <div class="pitch-item" onclick="copyPitch(this)">"Launch campaigns in minutes, not days. From offer input to deployment, the process is streamlined."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+              <div class="pitch-item" onclick="copyPitch(this)">"The system learns what works. It uses performance data to continuously optimize your messaging."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+              <div class="pitch-item" onclick="copyPitch(this)">"Scale your revenue by automating the hardest part of paid ads: writing copy that actually converts."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+            </div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── WORKFLOW 3 ─────────────────────── -->
+      <div class="workflow-view" id="wf-3">
+        <div class="workflow-hero">
+          <div class="workflow-hero-top">
+            <div class="workflow-hero-left">
+              <div class="workflow-number"><i class="fas fa-user-plus"></i> Workflow 3</div>
+              <h1 class="workflow-hero-title">Lead Intake → AI Qualification → CRM Automation</h1>
+            </div>
+            <div class="workflow-hero-right"><div class="workflow-nav-btns">
+              <button class="wf-nav-btn" onclick="prevWorkflow()"><i class="fas fa-chevron-left"></i></button>
+              <button class="wf-nav-btn" onclick="nextWorkflow()"><i class="fas fa-chevron-right"></i></button>
+            </div></div>
+          </div>
+          <div class="workflow-benefit-bar">
+            <div class="benefit-icon"><i class="fas fa-crosshairs"></i></div>
+            <div class="benefit-content">
+              <div class="benefit-label">Core Benefit</div>
+              <div class="benefit-text">Ensure every lead gets the right response at the right time.</div>
+            </div>
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="panel-card">
+            <div class="panel-card-header"><div class="panel-card-title"><i class="fas fa-list-ul"></i> Features</div></div>
+            <div class="panel-card-body"><div class="feature-grid">
+              <div class="feat"><div class="feat-dot"></div><div><div class="feat-label">Universal Capture</div><div class="feat-desc">Consolidates leads from websites, chat, and forms.</div></div></div>
+              <div class="feat"><div class="feat-dot"></div><div><div class="feat-label">AI Scoring</div><div class="feat-desc">Classifies leads based on quality and intent.</div></div></div>
+              <div class="feat"><div class="feat-dot"></div><div><div class="feat-label">Instant Engagement</div><div class="feat-desc">Triggers immediate follow-ups via email or SMS.</div></div></div>
+              <div class="feat"><div class="feat-dot"></div><div><div class="feat-label">CRM Hygiene</div><div class="feat-desc">Automatically updates pipeline stages and contact details.</div></div></div>
+            </div></div>
+          </div>
+          <div class="panel-card">
+            <div class="panel-card-header"><div class="panel-card-title"><i class="fas fa-bullhorn"></i> Sales Pitch Points</div><span style="font-size:0.72rem;color:var(--muted);font-weight:500;">Click to copy</span></div>
+            <div class="panel-card-body"><div class="pitch-list">
+              <div class="pitch-item" onclick="copyPitch(this)">"The '5-minute rule' is real—leads who get a response instantly are significantly more likely to close. Our system responds instantly."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+              <div class="pitch-item" onclick="copyPitch(this)">"Stop chasing 'tire kickers.' The AI qualifies the lead for you, so you only spend time on people ready to buy."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+              <div class="pitch-item" onclick="copyPitch(this)">"We eliminate data entry. No more copying and pasting lead details into a spreadsheet; it appears in your CRM automatically."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+              <div class="pitch-item" onclick="copyPitch(this)">"Your pipeline stays up to date automatically, giving you a clear view of your revenue potential at all times."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+              <div class="pitch-item" onclick="copyPitch(this)">"This is your 'safety net' for revenue. We ensure no potential customer ever slips through the cracks."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+            </div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── WORKFLOW 3A ─────────────────────── -->
+      <div class="workflow-view" id="wf-3a">
+        <div class="workflow-hero">
+          <div class="workflow-hero-top">
+            <div class="workflow-hero-left">
+              <div class="workflow-number"><i class="fas fa-phone-alt"></i> Workflow 3A</div>
+              <h1 class="workflow-hero-title">Automated Voice AI</h1>
+            </div>
+            <div class="workflow-hero-right"><div class="workflow-nav-btns">
+              <button class="wf-nav-btn" onclick="prevWorkflow()"><i class="fas fa-chevron-left"></i></button>
+              <button class="wf-nav-btn" onclick="nextWorkflow()"><i class="fas fa-chevron-right"></i></button>
+            </div></div>
+          </div>
+          <div class="workflow-benefit-bar">
+            <div class="benefit-icon"><i class="fas fa-moon"></i></div>
+            <div class="benefit-content">
+              <div class="benefit-label">Core Benefit</div>
+              <div class="benefit-text">Ensure no call goes unanswered and every inquiry is handled professionally 24/7.</div>
+            </div>
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="panel-card">
+            <div class="panel-card-header"><div class="panel-card-title"><i class="fas fa-list-ul"></i> Features</div></div>
+            <div class="panel-card-body"><div class="feature-grid">
+              <div class="feat"><div class="feat-dot"></div><div><div class="feat-label">Natural Voice Assistant</div><div class="feat-desc">Answers incoming calls with a human-sounding AI.</div></div></div>
+              <div class="feat"><div class="feat-dot"></div><div><div class="feat-label">Intent Capture</div><div class="feat-desc">Listens to the caller to understand their needs.</div></div></div>
+              <div class="feat"><div class="feat-dot"></div><div><div class="feat-label">Auto-Qualification</div><div class="feat-desc">Asks questions to qualify leads in real-time.</div></div></div>
+              <div class="feat"><div class="feat-dot"></div><div><div class="feat-label">Smart Routing</div><div class="feat-desc">Directs calls or triggers follow-ups based on the conversation.</div></div></div>
+            </div></div>
+          </div>
+          <div class="panel-card">
+            <div class="panel-card-header"><div class="panel-card-title"><i class="fas fa-bullhorn"></i> Sales Pitch Points</div><span style="font-size:0.72rem;color:var(--muted);font-weight:500;">Click to copy</span></div>
+            <div class="panel-card-body"><div class="pitch-list">
+              <div class="pitch-item" onclick="copyPitch(this)">"Your business is now open 24 hours a day. Whether a lead calls at 2 PM or 2 AM, they get a professional response."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+              <div class="pitch-item" onclick="copyPitch(this)">"Never miss a customized opportunity just because you were on another line or in a meeting."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+              <div class="pitch-item" onclick="copyPitch(this)">"Give your business a 'Fortune 500' feel with a professional AI receptionist that costs less than a phone bill."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+              <div class="pitch-item" onclick="copyPitch(this)">"The AI filters the noise. It captures the details so you only have to call back the qualified leads."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+              <div class="pitch-item" onclick="copyPitch(this)">"Capture revenue while you sleep. The AI can take orders, book appointments, or capture leads overnight."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+            </div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── WORKFLOW 3B ─────────────────────── -->
+      <div class="workflow-view" id="wf-3b">
+        <div class="workflow-hero">
+          <div class="workflow-hero-top">
+            <div class="workflow-hero-left">
+              <div class="workflow-number"><i class="fas fa-comment-dots"></i> Workflow 3B</div>
+              <h1 class="workflow-hero-title">Automated Chatbot</h1>
+            </div>
+            <div class="workflow-hero-right"><div class="workflow-nav-btns">
+              <button class="wf-nav-btn" onclick="prevWorkflow()"><i class="fas fa-chevron-left"></i></button>
+              <button class="wf-nav-btn" onclick="nextWorkflow()"><i class="fas fa-chevron-right"></i></button>
+            </div></div>
+          </div>
+          <div class="workflow-benefit-bar">
+            <div class="benefit-icon"><i class="fas fa-rocket"></i></div>
+            <div class="benefit-content">
+              <div class="benefit-label">Core Benefit</div>
+              <div class="benefit-text">Provide instant responses to website and social media inquiries to boost conversion.</div>
+            </div>
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="panel-card">
+            <div class="panel-card-header"><div class="panel-card-title"><i class="fas fa-list-ul"></i> Features</div></div>
+            <div class="panel-card-body"><div class="feature-grid">
+              <div class="feat"><div class="feat-dot"></div><div><div class="feat-label">Instant Replies</div><div class="feat-desc">Responds immediately to common questions from visitors.</div></div></div>
+              <div class="feat"><div class="feat-dot"></div><div><div class="feat-label">Conversational Qualification</div><div class="feat-desc">Qualifies leads through natural conversation rather than static forms.</div></div></div>
+              <div class="feat"><div class="feat-dot"></div><div><div class="feat-label">Action Execution</div><div class="feat-desc">Books appointments or routes inquiries to specific team members.</div></div></div>
+              <div class="feat"><div class="feat-dot"></div><div><div class="feat-label">Omni-Channel Support</div><div class="feat-desc">Works across Website, Messenger, and WhatsApp.</div></div></div>
+              <div class="feat"><div class="feat-dot"></div><div><div class="feat-label">24/7 Availability</div><div class="feat-desc">Ensures no inquiry is missed regardless of time of day.</div></div></div>
+            </div></div>
+          </div>
+          <div class="panel-card">
+            <div class="panel-card-header"><div class="panel-card-title"><i class="fas fa-bullhorn"></i> Sales Pitch Points</div><span style="font-size:0.72rem;color:var(--muted);font-weight:500;">Click to copy</span></div>
+            <div class="panel-card-body"><div class="pitch-list">
+              <div class="pitch-item" onclick="copyPitch(this)">"Capture revenue 24/7. Your website becomes a lead generation machine that never sleeps, capturing interest even when you are offline."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+              <div class="pitch-item" onclick="copyPitch(this)">"Speed wins. By responding instantly to inquiries, you drastically increase the chance of converting a visitor into a client."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+              <div class="pitch-item" onclick="copyPitch(this)">"Stop answering the same repetitive questions. The AI handles the FAQs so you can focus on complex sales conversations."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+              <div class="pitch-item" onclick="copyPitch(this)">"Meet your customers where they are. Whether they message on Facebook, WhatsApp, or your site, they get an instant, professional reply."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+              <div class="pitch-item" onclick="copyPitch(this)">"Turn traffic into appointments. The bot doesn't just chat; it qualifies visitors and books meetings directly on your calendar."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+            </div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── WORKFLOW 4 ─────────────────────── -->
+      <div class="workflow-view" id="wf-4">
+        <div class="workflow-hero">
+          <div class="workflow-hero-top">
+            <div class="workflow-hero-left">
+              <div class="workflow-number"><i class="fas fa-calendar-check"></i> Workflow 4</div>
+              <h1 class="workflow-hero-title">Appointment Booked → AI Call Preparation</h1>
+            </div>
+            <div class="workflow-hero-right"><div class="workflow-nav-btns">
+              <button class="wf-nav-btn" onclick="prevWorkflow()"><i class="fas fa-chevron-left"></i></button>
+              <button class="wf-nav-btn" onclick="nextWorkflow()"><i class="fas fa-chevron-right"></i></button>
+            </div></div>
+          </div>
+          <div class="workflow-benefit-bar">
+            <div class="benefit-icon"><i class="fas fa-trophy"></i></div>
+            <div class="benefit-content">
+              <div class="benefit-label">Core Benefit</div>
+              <div class="benefit-text">Dramatically increase close rates by showing up to every meeting fully prepared.</div>
+            </div>
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="panel-card">
+            <div class="panel-card-header"><div class="panel-card-title"><i class="fas fa-list-ul"></i> Features</div></div>
+            <div class="panel-card-body"><div class="feature-grid">
+              <div class="feat"><div class="feat-dot"></div><div><div class="feat-label">Appointment Detection</div><div class="feat-desc">Automatically recognizes when a sales call is booked.</div></div></div>
+              <div class="feat"><div class="feat-dot"></div><div><div class="feat-label">History Retrieval</div><div class="feat-desc">Pulls CRM data and past conversation history.</div></div></div>
+              <div class="feat"><div class="feat-dot"></div><div><div class="feat-label">AI Briefing</div><div class="feat-desc">Generates a pre-call agenda, objectives, and talking points.</div></div></div>
+              <div class="feat"><div class="feat-dot"></div><div><div class="feat-label">Objection Handling</div><div class="feat-desc">Predicts potential client objections and provides scripts.</div></div></div>
+            </div></div>
+          </div>
+          <div class="panel-card">
+            <div class="panel-card-header"><div class="panel-card-title"><i class="fas fa-bullhorn"></i> Sales Pitch Points</div><span style="font-size:0.72rem;color:var(--muted);font-weight:500;">Click to copy</span></div>
+            <div class="panel-card-body"><div class="pitch-list">
+              <div class="pitch-item" onclick="copyPitch(this)">"Never walk into a meeting cold again. You will have a 'cheat sheet' for every prospect delivered to you before the call."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+              <div class="pitch-item" onclick="copyPitch(this)">"Impress your clients by knowing every detail of their history without having to dig through old emails."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+              <div class="pitch-item" onclick="copyPitch(this)">"Confidence closes deals. This tool gives you the talking points and objection handlers you need to control the conversation."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+              <div class="pitch-item" onclick="copyPitch(this)">"Standardize your sales success. Even your newest rep will prep like a seasoned pro with these AI briefings."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+              <div class="pitch-item" onclick="copyPitch(this)">"It's like having a sales manager whisper the winning strategy in your ear right before you pick up the phone."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+            </div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── WORKFLOW 5 ─────────────────────── -->
+      <div class="workflow-view" id="wf-5">
+        <div class="workflow-hero">
+          <div class="workflow-hero-top">
+            <div class="workflow-hero-left">
+              <div class="workflow-number"><i class="fas fa-clipboard-list"></i> Workflow 5</div>
+              <h1 class="workflow-hero-title">Post-Call AI Recap & Follow-Up</h1>
+            </div>
+            <div class="workflow-hero-right"><div class="workflow-nav-btns">
+              <button class="wf-nav-btn" onclick="prevWorkflow()"><i class="fas fa-chevron-left"></i></button>
+              <button class="wf-nav-btn" onclick="nextWorkflow()" disabled><i class="fas fa-chevron-right"></i></button>
+            </div></div>
+          </div>
+          <div class="workflow-benefit-bar">
+            <div class="benefit-icon"><i class="fas fa-flag-checkered"></i></div>
+            <div class="benefit-content">
+              <div class="benefit-label">Core Benefit</div>
+              <div class="benefit-text">Capture value from every conversation and ensure strong follow-through.</div>
+            </div>
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="panel-card">
+            <div class="panel-card-header"><div class="panel-card-title"><i class="fas fa-list-ul"></i> Features</div></div>
+            <div class="panel-card-body"><div class="feature-grid">
+              <div class="feat"><div class="feat-dot"></div><div><div class="feat-label">Transcription</div><div class="feat-desc">Records and transcribes the sales call.</div></div></div>
+              <div class="feat"><div class="feat-dot"></div><div><div class="feat-label">AI Summarization</div><div class="feat-desc">Extracts key decisions, action items, and next steps.</div></div></div>
+              <div class="feat"><div class="feat-dot"></div><div><div class="feat-label">Drafted Follow-Up</div><div class="feat-desc">Writes a personalized follow-up email to the client.</div></div></div>
+              <div class="feat"><div class="feat-dot"></div><div><div class="feat-label">CRM Updates</div><div class="feat-desc">Automatically logs notes and tasks in the CRM.</div></div></div>
+              <div class="feat"><div class="feat-dot"></div><div><div class="feat-label">Deal Tracking</div><div class="feat-desc">Ensures momentum isn't lost if the deal doesn't close immediately.</div></div></div>
+            </div></div>
+          </div>
+          <div class="panel-card">
+            <div class="panel-card-header"><div class="panel-card-title"><i class="fas fa-bullhorn"></i> Sales Pitch Points</div><span style="font-size:0.72rem;color:var(--muted);font-weight:500;">Click to copy</span></div>
+            <div class="panel-card-body"><div class="pitch-list">
+              <div class="pitch-item" onclick="copyPitch(this)">"The fortune is in the follow-up. This system ensures you send a perfect summary email minutes after hanging up."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+              <div class="pitch-item" onclick="copyPitch(this)">"Stop spending your Friday afternoon updating your CRM. The AI logs every call and note for you automatically."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+              <div class="pitch-item" onclick="copyPitch(this)">"Make your clients feel heard. Sending a detailed summary of your conversation proves you were listening and care about their needs."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+              <div class="pitch-item" onclick="copyPitch(this)">"Eliminate the 'What did we agree on?' confusion. You and the client get a clear record of next steps every single time."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+              <div class="pitch-item" onclick="copyPitch(this)">"This closes the loop on your sales process, ensuring that the momentum you built on the call translates into signed deals."<div class="pitch-item-copy"><i class="fas fa-copy"></i></div></div>
+            </div></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content-area -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- Toast -->
+<div class="toast" id="toast"><i class="fas fa-check-circle"></i> <span id="toastMsg">Copied to clipboard!</span></div>
+
+<script>
+const ORDER = ['1','2','2a','2b','3','3a','3b','4','5'];
+let current = '1';
+
+const TITLES = {
+  '1': 'Workflow 1: AI Email Monitoring',
+  '2': 'Workflow 2: Content Engine',
+  '2a': 'Workflow 2A: Social Media',
+  '2b': 'Workflow 2B: Automated Ads',
+  '3': 'Workflow 3: Lead Intake & CRM',
+  '3a': 'Workflow 3A: Voice AI',
+  '3b': 'Workflow 3B: Chatbot',
+  '4': 'Workflow 4: Call Preparation',
+  '5': 'Workflow 5: Post-Call Recap'
+};
+
+function showWorkflow(id) {
+  // Update views
+  document.querySelectorAll('.workflow-view').forEach(v => v.classList.remove('active'));
+  const view = document.getElementById('wf-' + id);
+  if (view) {
+    view.classList.remove('active');
+    void view.offsetWidth; // reflow for animation
+    view.classList.add('active');
+  }
+  // Update sidebar nav
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const navEl = document.getElementById('nav-' + id);
+  if (navEl) navEl.classList.add('active');
+  // Update progress bar
+  document.querySelectorAll('.progress-step').forEach(s => s.classList.remove('active'));
+  const stepEl = document.querySelector('.progress-step[data-wf="' + id + '"]');
+  if (stepEl) {
+    stepEl.classList.add('active');
+    stepEl.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});
+  }
+  // Update topbar title
+  document.getElementById('topbarTitle').textContent = TITLES[id] || '';
+  current = id;
+  // Scroll content to top
+  document.getElementById('contentArea').scrollTo({top:0,behavior:'smooth'});
+}
+
+function nextWorkflow() {
+  const idx = ORDER.indexOf(current);
+  if (idx < ORDER.length - 1) showWorkflow(ORDER[idx + 1]);
+}
+function prevWorkflow() {
+  const idx = ORDER.indexOf(current);
+  if (idx > 0) showWorkflow(ORDER[idx - 1]);
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', function(e) {
+  if (e.target.tagName === 'INPUT') return;
+  if (e.key === 'ArrowRight') nextWorkflow();
+  if (e.key === 'ArrowLeft') prevWorkflow();
+});
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function copyPitch(el) {
+  const text = el.innerText.trim().replace(/\n.*$/, '');
+  navigator.clipboard.writeText(text).then(() => showToast('Pitch point copied!'));
+  el.style.background = 'rgba(34,197,94,0.1)';
+  el.style.borderColor = 'rgba(34,197,94,0.3)';
+  setTimeout(() => { el.style.background = ''; el.style.borderColor = ''; }, 1200);
+}
+
+function copyCurrentPitch() {
+  const view = document.getElementById('wf-' + current);
+  if (!view) return;
+  const points = [...view.querySelectorAll('.pitch-item')].map(p => p.innerText.trim().replace(/\n.*$/, ''));
+  navigator.clipboard.writeText(points.join('\n\n')).then(() => showToast('All pitch points copied!'));
+}
+
+function copyAll() {
+  let out = 'AI Business OS — Sales Pitch v2\n\n';
+  ORDER.forEach(id => {
+    const v = document.getElementById('wf-' + id);
+    if (!v) return;
+    out += (v.querySelector('.workflow-hero-title')?.innerText || '') + '\n';
+    out += 'Benefit: ' + (v.querySelector('.benefit-text')?.innerText || '') + '\n\n';
+    out += 'Sales Pitch Points:\n';
+    v.querySelectorAll('.pitch-item').forEach(p => {
+      out += p.innerText.trim().replace(/\n.*$/,'') + '\n';
+    });
+    out += '\n---\n\n';
+  });
+  navigator.clipboard.writeText(out).then(() => showToast('All workflows copied!'));
+}
+
+let sidebarCollapsed = false;
+function toggleSidebar() {
+  sidebarCollapsed = !sidebarCollapsed;
+  document.getElementById('sidebar').classList.toggle('collapsed', sidebarCollapsed);
+  document.getElementById('collapseIcon').className = sidebarCollapsed ? 'fas fa-bars' : 'fas fa-bars';
+}
+
+let focusMode = false;
+function toggleFocus() {
+  focusMode = !focusMode;
+  const btn = document.getElementById('focusBtn');
+  const sidebar = document.getElementById('sidebar');
+  const pbw = document.querySelector('.progress-bar-wrap');
+  if (focusMode) {
+    sidebar.style.display = 'none';
+    pbw.style.display = 'none';
+    btn.innerHTML = '<i class="fas fa-compress-arrows-alt"></i> Exit Focus';
+    btn.style.background = 'rgba(15,23,42,0.12)';
+    btn.style.color = 'var(--text)';
+    btn.style.borderColor = 'var(--border)';
+  } else {
+    sidebar.style.display = '';
+    pbw.style.display = '';
+    btn.innerHTML = '<i class="fas fa-expand-arrows-alt"></i> Focus';
+    btn.style.background = '';
+    btn.style.color = '';
+    btn.style.borderColor = '';
+  }
+}
+
+function filterNav(q) {
+  q = q.toLowerCase();
+  document.querySelectorAll('.nav-item').forEach(item => {
+    const text = item.querySelector('.nav-item-text')?.textContent.toLowerCase() || '';
+    item.style.display = text.includes(q) ? '' : 'none';
+  });
+}
+</script>
+{% endblock %}
